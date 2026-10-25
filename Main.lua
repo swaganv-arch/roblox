@@ -18,14 +18,7 @@ local function getHRP() local c=getChar(); return c and c:FindFirstChild("Humano
 
 local espObjs = {}
 local HAS_DRW = pcall(function() return Drawing.new("Square") end)
-
-local function clearESP()
-    for _,e in pairs(espObjs) do 
-        for _,o in pairs(e) do if type(o)=="table" and o.Remove then pcall(function() o:Remove() end) end end 
-        if e.bones then for _,b in ipairs(e.bones) do pcall(function() b:Remove() end) end end 
-    end
-    espObjs={}
-end
+local function clearESP() for _,e in pairs(espObjs) do for _,o in pairs(e) do if type(o)=="table" and o.Remove then pcall(function() o:Remove() end) end end if e.bones then for _,b in ipairs(e.bones) do pcall(function() b:Remove() end) end end end espObjs={} end
 
 local function initESP()
     clearESP(); if not HAS_DRW then return end
@@ -175,18 +168,20 @@ main.BackgroundColor3 = COL.bg; main.BorderSizePixel = 0; main.Active = true; ma
 Instance.new("UICorner", main).CornerRadius = UDim.new(0, 6)
 local stroke = Instance.new("UIStroke", main); stroke.Color = COL.green; stroke.Thickness = 2; stroke.Transparency = 0.2
 
+-- Using TextButton instead of TextLabel for ALL texts to fix executor bugs
 local header = Instance.new("Frame", main)
 header.Size = UDim2.new(1, 0, 0, 40); header.BackgroundColor3 = COL.panel; header.BorderSizePixel = 0
 Instance.new("UICorner", header).CornerRadius = UDim.new(0, 6)
-local title = Instance.new("TextLabel", header)
+local title = Instance.new("TextButton", header)
 title.Size = UDim2.new(1, -80, 1, 0); title.Position = UDim2.new(0, 15, 0, 0)
-title.BackgroundTransparency = 1; title.Text = "NEON BREACH v8.5"
-title.TextColor3 = COL.green; title.TextSize = 14; title.Font = Enum.Font.GothamBold; title.TextXAlignment = Enum.TextXAlignment.Left
+title.BackgroundTransparency = 1; title.Text = "NEON BREACH v9.0"
+title.TextColor3 = COL.green; title.TextSize = 16; title.Font = Enum.Font.SourceSansBold; title.TextXAlignment = Enum.TextXAlignment.Left
+title.AutoButtonColor = false
 
 local close = Instance.new("TextButton", header)
 close.Size = UDim2.new(0, 30, 0, 30); close.Position = UDim2.new(1, -40, 0, 5)
 close.BackgroundTransparency = 1; close.Text = "[X]"; close.TextColor3 = COL.bad
-close.TextSize = 16; close.Font = Enum.Font.GothamBold
+close.TextSize = 18; close.Font = Enum.Font.SourceSansBold
 close.MouseButton1Click:Connect(function() gui:Destroy() end)
 
 local side = Instance.new("Frame", main)
@@ -205,18 +200,20 @@ local console = Instance.new("Frame", cont)
 console.Size = UDim2.new(1, -20, 0, 150); console.Position = UDim2.new(0, 10, 1, -160)
 console.BackgroundColor3 = Color3.fromRGB(0, 0, 0); console.BorderSizePixel = 0
 local cStroke = Instance.new("UIStroke", console); cStroke.Color = COL.green; cStroke.Thickness = 1
-local cTitle = Instance.new("TextLabel", console)
+local cTitle = Instance.new("TextButton", console)
 cTitle.Size = UDim2.new(1, 0, 0, 20); cTitle.BackgroundTransparency = 1
-cTitle.Text = " CONSOLE"; cTitle.TextColor3 = COL.green; cTitle.Font = Enum.Font.GothamBold; cTitle.TextXAlignment = Enum.TextXAlignment.Left
+cTitle.Text = " CONSOLE"; cTitle.TextColor3 = COL.green; cTitle.Font = Enum.Font.SourceSansBold; cTitle.TextXAlignment = Enum.TextXAlignment.Left
+cTitle.AutoButtonColor = false
 local cText = Instance.new("ScrollingFrame", console)
 cText.Size = UDim2.new(1, -10, 1, -25); cText.Position = UDim2.new(0, 5, 0, 20)
 cText.BackgroundTransparency = 1; cText.BorderSizePixel = 0; cText.ScrollBarThickness = 2; cText.AutomaticCanvasSize = Enum.AutomaticSize.Y
 local cLayout = Instance.new("UIListLayout", cText); cLayout.Padding = UDim.new(0, 2)
 
 local function Log(msg)
-    local l = Instance.new("TextLabel", cText)
+    local l = Instance.new("TextButton", cText)
     l.Size = UDim2.new(1, 0, 0, 16); l.BackgroundTransparency = 1
-    l.Text = "> " .. msg; l.TextColor3 = COL.green; l.Font = Enum.Font.GothamBold; l.TextSize = 12; l.TextXAlignment = Enum.TextXAlignment.Left
+    l.Text = "> " .. msg; l.TextColor3 = COL.green; l.Font = Enum.Font.SourceSansBold; l.TextSize = 14; l.TextXAlignment = Enum.TextXAlignment.Left
+    l.AutoButtonColor = false
     task.delay(3, function() 
         if l then 
             TweenService:Create(l, TweenInfo.new(1), {TextTransparency = 1}):Play()
@@ -243,8 +240,8 @@ local function createTab(name)
     local btn = Instance.new("TextButton", side)
     btn.Size = UDim2.new(1, -10, 0, 36); btn.Position = UDim2.new(0, 5, 0, (#tabs * 40) + 5)
     btn.BackgroundColor3 = COL.bg; btn.BorderSizePixel = 0
-    btn.Text = "  > " .. name; btn.TextColor3 = COL.dim
-    btn.Font = Enum.Font.GothamBold; btn.TextSize = 14; btn.TextXAlignment = Enum.TextXAlignment.Left
+    btn.Text = name; btn.TextColor3 = COL.dim
+    btn.Font = Enum.Font.SourceSansBold; btn.TextSize = 16; btn.TextXAlignment = Enum.TextXAlignment.Center
     local page = Instance.new("ScrollingFrame", pages)
     page.Size = UDim2.new(1, 0, 1, 0); page.BackgroundTransparency = 1; page.BorderSizePixel = 0
     page.ScrollBarThickness = 2; page.AutomaticCanvasSize = Enum.AutomaticSize.Y; page.Visible = false
@@ -258,13 +255,14 @@ local function makeTog(par, name, get, set)
     local f = Instance.new("Frame", par)
     f.Size = UDim2.new(1, 0, 0, 36); f.BackgroundColor3 = COL.panel; f.BorderSizePixel = 0
     Instance.new("UICorner", f).CornerRadius = UDim.new(0, 4)
-    local l = Instance.new("TextLabel", f)
+    local l = Instance.new("TextButton", f)
     l.Size = UDim2.new(1, -60, 1, 0); l.Position = UDim2.new(0, 10, 0, 0); l.BackgroundTransparency = 1
-    l.Text = name; l.TextColor3 = COL.txt; l.Font = Enum.Font.GothamBold; l.TextSize = 13; l.TextXAlignment = Enum.TextXAlignment.Left
+    l.Text = name; l.TextColor3 = COL.txt; l.Font = Enum.Font.SourceSansBold; l.TextSize = 14; l.TextXAlignment = Enum.TextXAlignment.Left
+    l.AutoButtonColor = false; l.ZIndex = 5
     local b = Instance.new("TextButton", f)
     b.Size = UDim2.new(0, 50, 0, 20); b.Position = UDim2.new(1, -60, 0.5, -10)
     b.BackgroundColor3 = COL.bg; b.BorderSizePixel = 0
-    b.Text = get() and " [ON] " or " [OFF] "; b.TextColor3 = get() and COL.green or COL.bad; b.Font = Enum.Font.GothamBold; b.TextSize = 12
+    b.Text = get() and " [ON] " or " [OFF] "; b.TextColor3 = get() and COL.green or COL.bad; b.Font = Enum.Font.SourceSansBold; b.TextSize = 14
     local s = Instance.new("UIStroke", b); s.Color = get() and COL.green or COL.bad
     b.MouseButton1Click:Connect(function() 
         local st = not get(); set(st)
@@ -277,12 +275,14 @@ local function makeSld(par, name, min, max, get, set)
     local f = Instance.new("Frame", par)
     f.Size = UDim2.new(1, 0, 0, 50); f.BackgroundColor3 = COL.panel; f.BorderSizePixel = 0
     Instance.new("UICorner", f).CornerRadius = UDim.new(0, 4)
-    local l = Instance.new("TextLabel", f)
+    local l = Instance.new("TextButton", f)
     l.Size = UDim2.new(1, -60, 0, 20); l.Position = UDim2.new(0, 10, 0, 5); l.BackgroundTransparency = 1
-    l.Text = name; l.TextColor3 = COL.txt; l.Font = Enum.Font.GothamBold; l.TextSize = 13; l.TextXAlignment = Enum.TextXAlignment.Left
-    local v = Instance.new("TextLabel", f)
+    l.Text = name; l.TextColor3 = COL.txt; l.Font = Enum.Font.SourceSansBold; l.TextSize = 14; l.TextXAlignment = Enum.TextXAlignment.Left
+    l.AutoButtonColor = false; l.ZIndex = 5
+    local v = Instance.new("TextButton", f)
     v.Size = UDim2.new(0, 50, 0, 20); v.Position = UDim2.new(1, -60, 0, 5); v.BackgroundTransparency = 1
-    v.Text = tostring(get()); v.TextColor3 = COL.cyan; v.Font = Enum.Font.GothamBold; v.TextSize = 13; v.TextXAlignment = Enum.TextXAlignment.Right
+    v.Text = tostring(get()); v.TextColor3 = COL.cyan; v.Font = Enum.Font.SourceSansBold; v.TextSize = 14; v.TextXAlignment = Enum.TextXAlignment.Right
+    v.AutoButtonColor = false; v.ZIndex = 5
     local tr = Instance.new("TextButton", f)
     tr.Size = UDim2.new(1, -20, 0, 4); tr.Position = UDim2.new(0, 10, 0, 35)
     tr.BackgroundColor3 = COL.bg; tr.Text = ""; tr.BorderSizePixel = 0; tr.AutoButtonColor = false
@@ -298,6 +298,15 @@ local function makeSld(par, name, min, max, get, set)
             fl.Size = UDim2.new(p, 0, 1, 0); v.Text = tostring(val); set(val) 
         end 
     end)
+end
+
+local function makeBtn(par, name, cb)
+    local b = Instance.new("TextButton", par)
+    b.Size = UDim2.new(1, 0, 0, 36); b.BackgroundColor3 = COL.panel; b.Text = name
+    b.TextColor3 = COL.txt; b.Font = Enum.Font.SourceSansBold; b.TextSize = 14; b.BorderSizePixel = 0
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
+    local s = Instance.new("UIStroke", b); s.Color = COL.cyan
+    b.MouseButton1Click:Connect(cb)
 end
 
 local e = createTab("ESP")
