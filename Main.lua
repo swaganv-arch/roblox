@@ -8,50 +8,35 @@ local WS = workspace
 local LP = Players.LocalPlayer
 local Cam = WS.CurrentCamera
 
-local S = {
-    esp = true, box = true, skel = true, hp = true, name = true, dist = true, tracer = false,
-    colorIdx = 1, rainbow = false,
-    aim = false, aimFOV = 120, aimSmooth = 0.2, aimPart = "HumanoidRootPart",
-    speed = false, speedVal = 28, jump = 50, infJump = false, noclip = false,
-    fullbright = false, invis = false, hideHead = false
-}
-
-local colors = {
-    Color3.fromRGB(0, 255, 100), Color3.fromRGB(0, 200, 255), 
-    Color3.fromRGB(255, 50, 50), Color3.fromRGB(255, 255, 50), 
-    Color3.fromRGB(200, 50, 255)
-}
+local S = {esp=true,box=true,skel=true,hp=true,name=true,dist=true,tracer=false,colorIdx=1,rainbow=false,aim=false,aimFOV=120,aimSmooth=0.2,aimPart="HumanoidRootPart",speed=false,speedVal=28,jump=50,infJump=false,fly=false,flySpeed=60,noclip=false,size=1.0,glow=false,invis=false,hideHead=false,hideLLeg=false,hideRLeg=false,fullbright=false,bodyColor=1,dancing=false,giantHead=false,touchKill=false}
+local colors = {Color3.fromRGB(0,255,100),Color3.fromRGB(0,200,255),Color3.fromRGB(255,50,50),Color3.fromRGB(255,255,50),Color3.fromRGB(200,50,255)}
+local bodyColors = {Color3.fromRGB(255,0,0),Color3.fromRGB(0,0,255),Color3.fromRGB(0,255,0),Color3.fromRGB(0,0,0),Color3.fromRGB(255,255,255),Color3.fromRGB(255,165,0),Color3.fromRGB(128,0,128)}
 
 local function getChar() return LP.Character end
-local function getHum() local c = getChar(); return c and c:FindFirstChildOfClass("Humanoid") end
-local function getHRP() local c = getChar(); return c and c:FindFirstChild("HumanoidRootPart") end
+local function getHum() local c=getChar(); return c and c:FindFirstChildOfClass("Humanoid") end
+local function getHRP() local c=getChar(); return c and c:FindFirstChild("HumanoidRootPart") end
 
--- ESP SYSTEM
 local espObjs = {}
 local HAS_DRW = pcall(function() return Drawing.new("Square") end)
 
 local function clearESP()
-    for _, e in pairs(espObjs) do
-        for _, o in pairs(e) do if type(o) == "table" and o.Remove then pcall(function() o:Remove() end) end end
-        if e.bones then for _, b in ipairs(e.bones) do pcall(function() b:Remove() end) end end
+    for _,e in pairs(espObjs) do 
+        for _,o in pairs(e) do if type(o)=="table" and o.Remove then pcall(function() o:Remove() end) end end 
+        if e.bones then for _,b in ipairs(e.bones) do pcall(function() b:Remove() end) end end 
     end
-    espObjs = {}
+    espObjs={}
 end
 
 local function initESP()
     clearESP(); if not HAS_DRW then return end
-    for _, p in pairs(Players:GetPlayers()) do
-        if p ~= LP then
-            local e = {box=Drawing.new("Square"), name=Drawing.new("Text"), dist=Drawing.new("Text"), hpBar=Drawing.new("Square"), tracer=Drawing.new("Line"), bones={}, plr=p}
-            e.box.Visible=false; e.box.Thickness=1.5
-            e.name.Visible=false; e.name.Size=14; e.name.Center=true; e.name.Outline=true
-            e.dist.Visible=false; e.dist.Size=12; e.dist.Center=true; e.dist.Outline=true
-            e.hpBar.Visible=false; e.hpBar.Filled=true
-            e.tracer.Visible=false; e.tracer.Thickness=1
-            for i=1,14 do local l=Drawing.new("Line"); l.Visible=false; l.Thickness=1.5; table.insert(e.bones,l) end
-            table.insert(espObjs,e)
-        end
-    end
+    for _,p in pairs(Players:GetPlayers()) do if p~=LP then
+        local e={box=Drawing.new("Square"),name=Drawing.new("Text"),dist=Drawing.new("Text"),hpBar=Drawing.new("Square"),tracer=Drawing.new("Line"),bones={},plr=p}
+        e.box.Visible=false; e.box.Thickness=1.5; e.name.Visible=false; e.name.Size=14; e.name.Center=true; e.name.Outline=true
+        e.dist.Visible=false; e.dist.Size=12; e.dist.Center=true; e.dist.Outline=true; e.hpBar.Visible=false; e.hpBar.Filled=true
+        e.tracer.Visible=false; e.tracer.Thickness=1
+        for i=1,14 do local l=Drawing.new("Line"); l.Visible=false; l.Thickness=1.5; table.insert(e.bones,l) end
+        table.insert(espObjs,e)
+    end end
 end
 
 local R15={{"Head","UpperTorso"},{"UpperTorso","LowerTorso"},{"UpperTorso","LeftUpperArm"},{"LeftUpperArm","LeftLowerArm"},{"LeftLowerArm","LeftHand"},{"UpperTorso","RightUpperArm"},{"RightUpperArm","RightLowerArm"},{"RightLowerArm","RightHand"},{"LowerTorso","LeftUpperLeg"},{"LeftUpperLeg","LeftLowerLeg"},{"LeftLowerLeg","LeftFoot"},{"LowerTorso","RightUpperLeg"},{"RightUpperLeg","RightLowerLeg"},{"RightLowerLeg","RightFoot"}}
@@ -60,7 +45,7 @@ local R6={{"Head","Torso"},{"Torso","Left Arm"},{"Torso","Right Arm"},{"Torso","
 local function updateESP()
     if not HAS_DRW then return end
     local c = S.rainbow and Color3.fromHSV((tick()*0.5)%1,1,1) or colors[S.colorIdx]
-    for _, e in ipairs(espObjs) do
+    for _,e in ipairs(espObjs) do
         local ch=e.plr.Character; local hrp,head,hum=ch and ch:FindFirstChild("HumanoidRootPart"),ch and ch:FindFirstChild("Head"),ch and ch:FindFirstChildOfClass("Humanoid")
         local show=S.esp and hrp and head and hum and hum.Health>0
         if show then
@@ -90,52 +75,73 @@ local function updateESP()
 end
 initESP(); Players.PlayerAdded:Connect(initESP)
 
-local aimKeyHeld = false
-local origTrans = {}
+local aimKeyHeld = false; local origTrans = {}; local savedPos = nil
+local function applySize(scale)
+    S.size = scale
+    local char, hum = getChar(), getHum()
+    if not char or not hum then return end
+    if hum.RigType == Enum.HumanoidRigType.R15 then
+        local desc = hum:FindFirstChildOfClass("HumanoidDescription")
+        if not desc then desc = Instance.new("HumanoidDescription"); desc.Parent = hum end
+        desc.BodyHeightScale=scale; desc.BodyWidthScale=scale; desc.BodyDepthScale=scale; desc.HeadScale=scale
+        pcall(function() hum:ApplyDescription(desc) end)
+    end
+    local hrp = getHRP()
+    if hrp and scale < 1 then
+        local offset = (2.5 - (2.5 * scale)) + 0.5
+        task.spawn(function() task.wait(0.1)
+            if hrp and hrp.Parent then local ray = Ray.new(hrp.Position, Vector3.new(0, -10, 0)); local hit, pos = workspace:FindPartOnRay(ray, char)
+                if hit then hrp.CFrame = CFrame.new(pos + Vector3.new(0, offset, 0)) end
+            end
+        end)
+    end
+end
 
 local function updateVisuals()
-    local ch = getChar()
-    if not ch then return end
+    local ch = getChar(); if not ch then return end
     for _, p in pairs(ch:GetDescendants()) do
         if p:IsA("BasePart") and p.Name ~= "HumanoidRootPart" then
-            local isH = p.Name == "Head" and S.hideHead
-            p.Transparency = (S.invis or isH) and 1 or (origTrans[p] or 0)
-        elseif p:IsA("Decal") then
-            p.Transparency = (S.invis or (p.Parent and p.Parent.Name == "Head" and S.hideHead)) and 1 or (origTrans[p] or 0)
-        end
+            local isH = p.Name == "Head" and S.hideHead; local isL = (p.Name == "Left Leg" or p.Name == "LeftLowerLeg") and S.hideLLeg; local isR = (p.Name == "Right Leg" or p.Name == "RightLowerLeg") and S.hideRLeg
+            p.Transparency = (S.invis or isH or isL or isR) and 1 or (origTrans[p] or 0)
+        elseif p:IsA("Decal") then p.Transparency = (S.invis or (p.Parent and p.Parent.Name == "Head" and S.hideHead)) and 1 or (origTrans[p] or 0) end
     end
 end
-
-local function setupTrans(ch)
-    origTrans = {}
-    for _, p in pairs(ch:GetDescendants()) do
-        if p:IsA("BasePart") or p:IsA("Decal") then origTrans[p] = p.Transparency end
-    end
-end
-
+local function setupTrans(ch) origTrans = {}; for _, p in pairs(ch:GetDescendants()) do if p:IsA("BasePart") or p:IsA("Decal") then origTrans[p] = p.Transparency end end end
 if getChar() then setupTrans(getChar()) end
-LP.CharacterAdded:Connect(function(c)
-    task.wait(1)
-    setupTrans(c)
-end)
+LP.CharacterAdded:Connect(function(c) task.wait(1); setupTrans(c); applySize(S.size) end)
 
 RS.RenderStepped:Connect(function(dt)
     updateESP()
     if S.aim and aimKeyHeld then
-        local cl, b = nil, S.aimFOV
-        local center = Vector2.new(Cam.ViewportSize.X / 2, Cam.ViewportSize.Y / 2)
+        local cl, b = nil, S.aimFOV; local center = Vector2.new(Cam.ViewportSize.X / 2, Cam.ViewportSize.Y / 2)
         for _, p in pairs(Players:GetPlayers()) do
             if p ~= LP and p.Character and p.Character:FindFirstChild(S.aimPart) then
                 local sp, vis = Cam:WorldToViewportPoint(p.Character[S.aimPart].Position)
-                if vis then
-                    local d = (Vector2.new(sp.X, sp.Y) - center).Magnitude
-                    if d < b then b = d; cl = p.Character[S.aimPart] end
-                end
+                if vis then local d = (Vector2.new(sp.X, sp.Y) - center).Magnitude; if d < b then b = d; cl = p.Character[S.aimPart] end end
             end
         end
-        if cl then
-            local tcf = CFrame.new(Cam.CFrame.Position, cl.Position)
-            Cam.CFrame = Cam.CFrame:Lerp(tcf, 1 - math.exp(-S.aimSmooth * dt * 60))
+        if cl then Cam.CFrame = Cam.CFrame:Lerp(CFrame.new(Cam.CFrame.Position, cl.Position), 1 - math.exp(-S.aimSmooth * dt * 60)) end
+    end
+    if S.fly then
+        local hrp, hum = getHRP(), getHum()
+        if hrp and hum then
+            hum.PlatformStand = true; local dir = Vector3.zero
+            if UIS:IsKeyDown(Enum.KeyCode.W) then dir += Cam.CFrame.LookVector end; if UIS:IsKeyDown(Enum.KeyCode.S) then dir -= Cam.CFrame.LookVector end
+            if UIS:IsKeyDown(Enum.KeyCode.A) then dir -= Cam.CFrame.RightVector end; if UIS:IsKeyDown(Enum.KeyCode.D) then dir += Cam.CFrame.RightVector end
+            if UIS:IsKeyDown(Enum.KeyCode.Space) then dir += Vector3.yAxis end; if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then dir -= Vector3.yAxis end
+            local lv, ao = hrp:FindFirstChild("FlyLV"), hrp:FindFirstChild("FlyAO")
+            if lv and ao then lv.VectorVelocity = dir * S.flySpeed; ao.CFrame = Cam.CFrame end
+            hrp.Velocity = Vector3.zero
+        end
+    end
+    if S.touchKill then
+        local hrp = getHRP()
+        if hrp then
+            for _, p in pairs(Players:GetPlayers()) do
+                if p ~= LP and p.Character then local thrp = p.Character:FindFirstChild("HumanoidRootPart"); local thum = p.Character:FindFirstChildOfClass("Humanoid")
+                    if thrp and thum and (hrp.Position - thrp.Position).Magnitude < 5 then pcall(function() thum.Health = 0 end) end
+                end
+            end
         end
     end
 end)
@@ -143,24 +149,19 @@ end)
 RS.Heartbeat:Connect(function()
     local hum = getHum()
     if hum then
-        if S.speed then hum.WalkSpeed = S.speedVal else hum.WalkSpeed = 16 end
+        if S.speed then hum.WalkSpeed = S.speedVal else if not S.fly then hum.WalkSpeed = 16 end end
         if hum.UseJumpPower then hum.JumpPower = S.jump else hum.JumpHeight = S.jump * 0.15 end
     end
-    local ch = getChar()
-    if ch and S.noclip then for _, p in pairs(ch:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide = false end end end
+    local ch = getChar(); if ch and S.noclip then for _, p in pairs(ch:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide = false end end end
     updateVisuals()
-    
-    if S.fullbright then
-        Lighting.Brightness = 2
-        Lighting.ClockTime = 12
-        Lighting.FogEnd = 100000
-        Lighting.GlobalShadows = false
+    local hrp = getHRP()
+    if hrp then
+        if S.glow then local l = hrp:FindFirstChild("Glow") or Instance.new("PointLight", hrp); l.Name = "Glow"; l.Brightness = 4; l.Range = 20; l.Color = Color3.fromHSV((tick()*0.5)%1, 1, 1) 
+        else local l = hrp:FindFirstChild("Glow"); if l then l:Destroy() end end
     end
 end)
 
-UIS.JumpRequest:Connect(function() 
-    if S.infJump then local h = getHum(); if h then h:ChangeState(Enum.HumanoidStateType.Jumping) end end 
-end)
+UIS.JumpRequest:Connect(function() if S.infJump then local h = getHum(); if h then h:ChangeState(Enum.HumanoidStateType.Jumping) end end end)
 UIS.InputBegan:Connect(function(i, g) if not g and i.KeyCode == Enum.KeyCode.E then aimKeyHeld = true end end)
 UIS.InputEnded:Connect(function(i, g) if not g and i.KeyCode == Enum.KeyCode.E then aimKeyHeld = false end end)
 
@@ -170,7 +171,7 @@ local gui = Instance.new("ScreenGui"); gui.Name = "NeonBreach"; gui.ResetOnSpawn
 pcall(function() if gethui then gui.Parent = gethui() else gui.Parent = CoreGui end end)
 
 local main = Instance.new("Frame", gui)
-main.Size = UDim2.new(0, 600, 0, 400); main.Position = UDim2.new(0.5, -300, 0.5, -200)
+main.Size = UDim2.new(0, 650, 0, 450); main.Position = UDim2.new(0.5, -325, 0.5, -225)
 main.BackgroundColor3 = COL.bg; main.BorderSizePixel = 0; main.Active = true; main.Draggable = true
 Instance.new("UICorner", main).CornerRadius = UDim.new(0, 6)
 local stroke = Instance.new("UIStroke", main); stroke.Color = COL.green; stroke.Thickness = 2; stroke.Transparency = 0.2
@@ -180,7 +181,7 @@ header.Size = UDim2.new(1, 0, 0, 40); header.BackgroundColor3 = COL.panel; heade
 Instance.new("UICorner", header).CornerRadius = UDim.new(0, 6)
 local title = Instance.new("TextLabel", header)
 title.Size = UDim2.new(1, -80, 1, 0); title.Position = UDim2.new(0, 15, 0, 0)
-title.BackgroundTransparency = 1; title.Text = "NEON BREACH v7.0"
+title.BackgroundTransparency = 1; title.Text = "NEON BREACH v8.0"
 title.TextColor3 = COL.green; title.TextSize = 14; title.Font = Enum.Font.Code; title.TextXAlignment = Enum.TextXAlignment.Left
 
 local close = Instance.new("TextButton", header)
@@ -190,16 +191,16 @@ close.TextSize = 16; close.Font = Enum.Font.Code
 close.MouseButton1Click:Connect(function() gui:Destroy() end)
 
 local side = Instance.new("Frame", main)
-side.Size = UDim2.new(0, 150, 1, -40); side.Position = UDim2.new(0, 0, 0, 40)
+side.Size = UDim2.new(0, 160, 1, -40); side.Position = UDim2.new(0, 0, 0, 40)
 side.BackgroundColor3 = COL.panel; side.BorderSizePixel = 0
 local sideLine = Instance.new("Frame", side)
 sideLine.Size = UDim2.new(0, 2, 1, 0); sideLine.Position = UDim2.new(1, -2, 0, 0)
 sideLine.BackgroundColor3 = COL.green; sideLine.BorderSizePixel = 0
 
 local cont = Instance.new("Frame", main)
-cont.Size = UDim2.new(1, -150, 1, -40); cont.Position = UDim2.new(0, 150, 0, 40); cont.BackgroundTransparency = 1
+cont.Size = UDim2.new(1, -160, 1, -40); cont.Position = UDim2.new(0, 160, 0, 40); cont.BackgroundTransparency = 1
 local pages = Instance.new("Frame", cont)
-pages.Size = UDim2.new(1, -20, 1, -60); pages.Position = UDim2.new(0, 10, 0, 10); pages.BackgroundTransparency = 1
+pages.Size = UDim2.new(1, -20, 1, -20); pages.Position = UDim2.new(0, 10, 0, 10); pages.BackgroundTransparency = 1
 
 local tabs = {}
 local function selectTab(idx) 
@@ -213,12 +214,13 @@ end
 local function createTab(name)
     local my = #tabs + 1
     local btn = Instance.new("TextButton", side)
-    btn.Size = UDim2.new(1, -10, 0, 40); btn.Position = UDim2.new(0, 5, 0, (#tabs * 45) + 5)
+    btn.Size = UDim2.new(1, -10, 0, 36); btn.Position = UDim2.new(0, 5, 0, (#tabs * 40) + 5)
     btn.BackgroundColor3 = COL.bg; btn.BorderSizePixel = 0
     btn.Text = "  > " .. name; btn.TextColor3 = COL.dim
     btn.Font = Enum.Font.Code; btn.TextSize = 14; btn.TextXAlignment = Enum.TextXAlignment.Left
-    local page = Instance.new("Frame", pages)
-    page.Size = UDim2.new(1, 0, 1, 0); page.BackgroundTransparency = 1; page.Visible = false
+    local page = Instance.new("ScrollingFrame", pages)
+    page.Size = UDim2.new(1, 0, 1, 0); page.BackgroundTransparency = 1; page.BorderSizePixel = 0
+    page.ScrollBarThickness = 2; page.AutomaticCanvasSize = Enum.AutomaticSize.Y; page.Visible = false
     local lay = Instance.new("UIListLayout", page); lay.Padding = UDim.new(0, 8)
     table.insert(tabs, {btn = btn, page = page})
     btn.MouseButton1Click:Connect(function() selectTab(my) end)
@@ -271,6 +273,15 @@ local function makeSld(par, name, min, max, get, set)
     end)
 end
 
+local function makeBtn(par, name, cb)
+    local b = Instance.new("TextButton", par)
+    b.Size = UDim2.new(1, 0, 0, 36); b.BackgroundColor3 = COL.panel; b.Text = name
+    b.TextColor3 = COL.txt; b.Font = Enum.Font.Code; b.BorderSizePixel = 0
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
+    local s = Instance.new("UIStroke", b); s.Color = COL.cyan
+    b.MouseButton1Click:Connect(cb)
+end
+
 local e = createTab("ESP")
 makeTog(e, "Enable ESP", function() return S.esp end, function(v) S.esp = v end)
 makeTog(e, "Box", function() return S.box end, function(v) S.box = v end)
@@ -278,6 +289,8 @@ makeTog(e, "Skeleton", function() return S.skel end, function(v) S.skel = v end)
 makeTog(e, "Health", function() return S.hp end, function(v) S.hp = v end)
 makeTog(e, "Names", function() return S.name end, function(v) S.name = v end)
 makeTog(e, "Distance", function() return S.dist end, function(v) S.dist = v end)
+makeTog(e, "Rainbow", function() return S.rainbow end, function(v) S.rainbow = v end)
+makeBtn(e, "CHANGE COLOR", function() S.colorIdx = (S.colorIdx % #colors) + 1 end)
 
 local a = createTab("Aim")
 makeTog(a, "Enable Aim (E)", function() return S.aim end, function(v) S.aim = v end)
@@ -289,11 +302,63 @@ makeTog(m, "Speed", function() return S.speed end, function(v) S.speed = v end)
 makeSld(m, "Speed Val", 16, 150, function() return S.speedVal end, function(v) S.speedVal = v end)
 makeSld(m, "Jump", 50, 250, function() return S.jump end, function(v) S.jump = v end)
 makeTog(m, "Inf Jump", function() return S.infJump end, function(v) S.infJump = v end)
+makeTog(m, "Fly", function() return S.fly end, function(v) 
+    S.fly = v
+    local hrp = getHRP()
+    if v and hrp then 
+        local at = Instance.new("Attachment", hrp); at.Name = "FlyAttach"
+        local lv = Instance.new("LinearVelocity", hrp); lv.Name = "FlyLV"; lv.Attachment0 = at; lv.MaxForce = math.huge
+        local ao = Instance.new("AlignOrientation", hrp); ao.Name = "FlyAO"; ao.Attachment0 = at; ao.MaxTorque = math.huge
+    elseif not v and hrp then 
+        local hum = getHum(); if hum then hum.PlatformStand = false end
+        for _, n in pairs({"FlyLV", "FlyAO", "FlyAttach"}) do local ob = hrp:FindFirstChild(n); if ob then ob:Destroy() end end 
+    end 
+end)
+makeSld(m, "Fly Speed", 20, 200, function() return S.flySpeed end, function(v) S.flySpeed = v end)
 makeTog(m, "Noclip", function() return S.noclip end, function(v) S.noclip = v end)
 
+local s = createTab("Size")
+makeSld(s, "Player Size", 4, 25, function() return math.floor(S.size * 10) end, function(v) applySize(v / 10) end)
+makeTog(s, "Giant Head", function() return S.giantHead end, function(v) 
+    S.giantHead = v; local h = getHum(); if h then local head = getChar():FindFirstChild("Head"); if head then if v then head.Size = Vector3.new(4,4,4) else head.Size = Vector3.new(2,1,1) end end end 
+end)
+
 local l = createTab("Look")
-makeTog(l, "Fullbright", function() return S.fullbright end, function(v) S.fullbright = v end)
+makeTog(l, "Glow", function() return S.glow end, function(v) S.glow = v end)
 makeTog(l, "Invisible", function() return S.invis end, function(v) S.invis = v end)
 makeTog(l, "Hide Head", function() return S.hideHead end, function(v) S.hideHead = v end)
+makeTog(l, "Hide L-Leg", function() return S.hideLLeg end, function(v) S.hideLLeg = v end)
+makeTog(l, "Hide R-Leg", function() return S.hideRLeg end, function(v) S.hideRLeg = v end)
+makeTog(l, "Fullbright", function() return S.fullbright end, function(v) S.fullbright = v; Lighting.Brightness = v and 2 or 0.5; Lighting.Ambient = v and Color3.new(1,1,1) or Color3.fromRGB(70,70,70) end)
+
+local c = createTab("Combat")
+makeTog(c, "Touch Kill", function() return S.touchKill end, function(v) S.touchKill = v end)
+makeBtn(c, "Nuke (Kill All)", function() for _, p in pairs(Players:GetPlayers()) do if p ~= LP and p.Character then local h = p.Character:FindFirstChildOfClass("Humanoid"); if h then pcall(function() h.Health = 0 end) end end end end)
+
+local f = createTab("Fun")
+makeBtn(f, "CYCLE BODY COLOR", function() 
+    S.bodyColor = (S.bodyColor % #bodyColors) + 1
+    local hum = getHum()
+    if hum then
+        local desc = hum:FindFirstChildOfClass("HumanoidDescription")
+        if not desc then desc = Instance.new("HumanoidDescription"); desc.Parent = hum end
+        desc.TorsoColor = bodyColors[S.bodyColor]; desc.LeftArmColor = bodyColors[S.bodyColor]
+        desc.RightArmColor = bodyColors[S.bodyColor]; desc.LeftLegColor = bodyColors[S.bodyColor]; desc.RightLegColor = bodyColors[S.bodyColor]
+        pcall(function() hum:ApplyDescription(desc) end)
+    end
+end)
+makeTog(f, "Dance", function() return S.dancing end, function(v) 
+    S.dancing = v; local hum = getHum()
+    if hum then
+        if v then local anim = Instance.new("Animation"); anim.AnimationId = "rbxassetid://507771019"; local track = hum:LoadAnimation(anim); track:Play()
+        else for _, t in ipairs(hum:GetPlayingAnimationTracks()) do t:Stop() end end
+    end
+end)
+
+local t = createTab("Teleport")
+makeBtn(t, "Save Location", function() local hrp = getHRP(); if hrp then savedPos = hrp.CFrame end end)
+makeBtn(t, "Load Location", function() local hrp = getHRP(); if hrp and savedPos then hrp.CFrame = savedPos end end)
+makeBtn(t, "Teleport to Spawn", function() local hrp = getHRP(); if hrp then hrp.CFrame = CFrame.new(0, 10, 0) end end)
 
 selectTab(1)
+print("Goodbye")
