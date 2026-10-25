@@ -12,10 +12,10 @@ local S = {
     esp = true, box = true, skel = true, hp = true, name = true, dist = true, tracer = false,
     colorIdx = 1, rainbow = false,
     aim = false, aimFOV = 120, aimSmooth = 0.2, aimPart = "HumanoidRootPart",
-    speed = false, speedVal = 28, jump = 50, infJump = false,
-    noclip = false,
-    fullbright = true, hideHead = false, invis = false
+    speed = false, speedVal = 28, jump = 50, infJump = false, noclip = false,
+    fullbright = false, invis = false, hideHead = false
 }
+
 local colors = {
     Color3.fromRGB(0, 255, 100), Color3.fromRGB(0, 200, 255), 
     Color3.fromRGB(255, 50, 50), Color3.fromRGB(255, 255, 50), 
@@ -150,7 +150,6 @@ RS.Heartbeat:Connect(function()
     if ch and S.noclip then for _, p in pairs(ch:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide = false end end end
     updateVisuals()
     
-    -- Fullbright
     if S.fullbright then
         Lighting.Brightness = 2
         Lighting.ClockTime = 12
@@ -165,13 +164,13 @@ end)
 UIS.InputBegan:Connect(function(i, g) if not g and i.KeyCode == Enum.KeyCode.E then aimKeyHeld = true end end)
 UIS.InputEnded:Connect(function(i, g) if not g and i.KeyCode == Enum.KeyCode.E then aimKeyHeld = false end end)
 
--- ═══════ UI DESIGN ═══════
+-- UI DESIGN
 local COL = {bg = Color3.fromRGB(5, 10, 10), panel = Color3.fromRGB(10, 20, 15), green = Color3.fromRGB(0, 255, 100), cyan = Color3.fromRGB(0, 200, 255), txt = Color3.fromRGB(200, 255, 200), dim = Color3.fromRGB(50, 100, 70), bad = Color3.fromRGB(255, 50, 50)}
 local gui = Instance.new("ScreenGui"); gui.Name = "NeonBreach"; gui.ResetOnSpawn = false; gui.DisplayOrder = 9999
 pcall(function() if gethui then gui.Parent = gethui() else gui.Parent = CoreGui end end)
 
 local main = Instance.new("Frame", gui)
-main.Size = UDim2.new(0, 680, 0, 480); main.Position = UDim2.new(0.5, -340, 0.5, -240)
+main.Size = UDim2.new(0, 600, 0, 400); main.Position = UDim2.new(0.5, -300, 0.5, -200)
 main.BackgroundColor3 = COL.bg; main.BorderSizePixel = 0; main.Active = true; main.Draggable = true
 Instance.new("UICorner", main).CornerRadius = UDim.new(0, 6)
 local stroke = Instance.new("UIStroke", main); stroke.Color = COL.green; stroke.Thickness = 2; stroke.Transparency = 0.2
@@ -181,83 +180,43 @@ header.Size = UDim2.new(1, 0, 0, 40); header.BackgroundColor3 = COL.panel; heade
 Instance.new("UICorner", header).CornerRadius = UDim.new(0, 6)
 local title = Instance.new("TextLabel", header)
 title.Size = UDim2.new(1, -80, 1, 0); title.Position = UDim2.new(0, 15, 0, 0)
-title.BackgroundTransparency = 1; title.Text = "NEON BREACH v7.0 - SAFE MODE"
+title.BackgroundTransparency = 1; title.Text = "NEON BREACH v7.0"
 title.TextColor3 = COL.green; title.TextSize = 14; title.Font = Enum.Font.Code; title.TextXAlignment = Enum.TextXAlignment.Left
 
 local close = Instance.new("TextButton", header)
 close.Size = UDim2.new(0, 30, 0, 30); close.Position = UDim2.new(1, -40, 0, 5)
 close.BackgroundTransparency = 1; close.Text = "[X]"; close.TextColor3 = COL.bad
 close.TextSize = 16; close.Font = Enum.Font.Code
-
-local reopen
-close.MouseButton1Click:Connect(function() 
-    main.Visible = false
-    if not reopen then
-        reopen = Instance.new("TextButton", gui)
-        reopen.Size = UDim2.new(0, 45, 0, 45); reopen.Position = UDim2.new(0, 20, 0.5, -20)
-        reopen.BackgroundColor3 = COL.bg; reopen.Text = ">_"; reopen.TextColor3 = COL.green; reopen.TextSize = 20; reopen.Font = Enum.Font.Code
-        local s = Instance.new("UIStroke", reopen); s.Color = COL.green; s.Thickness = 2
-        reopen.MouseButton1Click:Connect(function() main.Visible = true; reopen.Visible = false end)
-    end
-    reopen.Visible = true 
-end)
+close.MouseButton1Click:Connect(function() gui:Destroy() end)
 
 local side = Instance.new("Frame", main)
-side.Size = UDim2.new(0, 160, 1, -40); side.Position = UDim2.new(0, 0, 0, 40)
+side.Size = UDim2.new(0, 150, 1, -40); side.Position = UDim2.new(0, 0, 0, 40)
 side.BackgroundColor3 = COL.panel; side.BorderSizePixel = 0
 local sideLine = Instance.new("Frame", side)
 sideLine.Size = UDim2.new(0, 2, 1, 0); sideLine.Position = UDim2.new(1, -2, 0, 0)
 sideLine.BackgroundColor3 = COL.green; sideLine.BorderSizePixel = 0
 
 local cont = Instance.new("Frame", main)
-cont.Size = UDim2.new(1, -160, 1, -40); cont.Position = UDim2.new(0, 160, 0, 40); cont.BackgroundTransparency = 1
+cont.Size = UDim2.new(1, -150, 1, -40); cont.Position = UDim2.new(0, 150, 0, 40); cont.BackgroundTransparency = 1
 local pages = Instance.new("Frame", cont)
-pages.Size = UDim2.new(1, -20, 1, -190); pages.Position = UDim2.new(0, 10, 0, 10); pages.BackgroundTransparency = 1
-
-local console = Instance.new("Frame", cont)
-console.Size = UDim2.new(1, -20, 0, 150); console.Position = UDim2.new(0, 10, 1, -160)
-console.BackgroundColor3 = Color3.fromRGB(0, 0, 0); console.BorderSizePixel = 0
-local cStroke = Instance.new("UIStroke", console); cStroke.Color = COL.green; cStroke.Thickness = 1
-local cTitle = Instance.new("TextLabel", console)
-cTitle.Size = UDim2.new(1, 0, 0, 20); cTitle.BackgroundTransparency = 1
-cTitle.Text = " CONSOLE"; cTitle.TextColor3 = COL.green; cTitle.Font = Enum.Font.Code; cTitle.TextXAlignment = Enum.TextXAlignment.Left
-local cText = Instance.new("ScrollingFrame", console)
-cText.Size = UDim2.new(1, -10, 1, -25); cText.Position = UDim2.new(0, 5, 0, 20)
-cText.BackgroundTransparency = 1; cText.BorderSizePixel = 0; cText.ScrollBarThickness = 2; cText.AutomaticCanvasSize = Enum.AutomaticSize.Y
-local cLayout = Instance.new("UIListLayout", cText); cLayout.Padding = UDim.new(0, 2)
-
-local function Log(msg)
-    local l = Instance.new("TextLabel", cText)
-    l.Size = UDim2.new(1, 0, 0, 16); l.BackgroundTransparency = 1
-    l.Text = "> " .. msg; l.TextColor3 = COL.green; l.Font = Enum.Font.Code; l.TextSize = 12; l.TextXAlignment = Enum.TextXAlignment.Left
-    task.delay(3, function() 
-        if l then 
-            TweenService:Create(l, TweenInfo.new(1), {TextTransparency = 1}):Play()
-            task.wait(1); l:Destroy() 
-        end 
-    end)
-end
-
-Log("SYSTEM INITIALIZED...")
-Log("SAFE MODE ACTIVATED.")
-Log("ACCESS GRANTED. WELCOME " .. string.upper(LP.Name))
+pages.Size = UDim2.new(1, -20, 1, -60); pages.Position = UDim2.new(0, 10, 0, 10); pages.BackgroundTransparency = 1
 
 local tabs = {}
 local function selectTab(idx) 
     for i, t in ipairs(tabs) do 
-        t.btn.BackgroundTransparency = i == idx and 0.8 or 1
+        t.btn.BackgroundColor3 = i == idx and COL.panel or COL.bg
         t.btn.TextColor3 = i == idx and COL.cyan or COL.dim
         t.page.Visible = i == idx 
     end 
 end
 
-local function createTab(name, icon)
+local function createTab(name)
     local my = #tabs + 1
     local btn = Instance.new("TextButton", side)
-    btn.Size = UDim2.new(1, 0, 0, 40); btn.Position = UDim2.new(0, 0, 0, (#tabs * 45) + 10)
-    btn.BackgroundColor3 = COL.green; btn.BackgroundTransparency = 1
-    btn.Text = "  " .. icon .. "  " .. name; btn.TextColor3 = COL.dim
-    btn.Font = Enum.Font.Code; btn.TextSize = 14; btn.TextXAlignment = Enum.TextXAlignment.Left; btn.BorderSizePixel = 0
+    btn.Size = UDim2.new(1, -10, 0, 40); btn.Position = UDim2.new(0, 5, 0, (#tabs * 45) + 5)
+    btn.BackgroundColor3 = COL.bg; btn.BorderSizePixel = 0
+    btn.Text = "  > " .. name; btn.TextColor3 = COL.dim
+    btn.Font = Enum.Font.Code; btn.TextSize = 14; btn.TextXAlignment = Enum.TextXAlignment.Left
     local page = Instance.new("Frame", pages)
     page.Size = UDim2.new(1, 0, 1, 0); page.BackgroundTransparency = 1; page.Visible = false
     local lay = Instance.new("UIListLayout", page); lay.Padding = UDim.new(0, 8)
@@ -269,6 +228,7 @@ end
 local function makeTog(par, name, get, set)
     local f = Instance.new("Frame", par)
     f.Size = UDim2.new(1, 0, 0, 36); f.BackgroundColor3 = COL.panel; f.BorderSizePixel = 0
+    Instance.new("UICorner", f).CornerRadius = UDim.new(0, 4)
     local l = Instance.new("TextLabel", f)
     l.Size = UDim2.new(1, -60, 1, 0); l.Position = UDim2.new(0, 10, 0, 0); l.BackgroundTransparency = 1
     l.Text = name; l.TextColor3 = COL.txt; l.Font = Enum.Font.Code; l.TextSize = 13; l.TextXAlignment = Enum.TextXAlignment.Left
@@ -276,17 +236,18 @@ local function makeTog(par, name, get, set)
     b.Size = UDim2.new(0, 50, 0, 20); b.Position = UDim2.new(1, -60, 0.5, -10)
     b.BackgroundColor3 = COL.bg; b.BorderSizePixel = 0
     b.Text = get() and " [ON] " or " [OFF] "; b.TextColor3 = get() and COL.green or COL.bad; b.Font = Enum.Font.Code; b.TextSize = 12
-    local s = Instance.new("UIStroke", b); s.Color = COL.green
+    local s = Instance.new("UIStroke", b); s.Color = get() and COL.green or COL.bad
     b.MouseButton1Click:Connect(function() 
         local st = not get(); set(st)
         b.Text = st and " [ON] " or " [OFF] "; b.TextColor3 = st and COL.green or COL.bad
-        Log(string.upper(name) .. ": " .. (st and "ON" or "OFF")) 
+        s.Color = st and COL.green or COL.bad
     end)
 end
 
 local function makeSld(par, name, min, max, get, set)
     local f = Instance.new("Frame", par)
     f.Size = UDim2.new(1, 0, 0, 50); f.BackgroundColor3 = COL.panel; f.BorderSizePixel = 0
+    Instance.new("UICorner", f).CornerRadius = UDim.new(0, 4)
     local l = Instance.new("TextLabel", f)
     l.Size = UDim2.new(1, -60, 0, 20); l.Position = UDim2.new(0, 10, 0, 5); l.BackgroundTransparency = 1
     l.Text = name; l.TextColor3 = COL.txt; l.Font = Enum.Font.Code; l.TextSize = 13; l.TextXAlignment = Enum.TextXAlignment.Left
@@ -310,31 +271,29 @@ local function makeSld(par, name, min, max, get, set)
     end)
 end
 
-local e = createTab("ESP", "[+]")
+local e = createTab("ESP")
 makeTog(e, "Enable ESP", function() return S.esp end, function(v) S.esp = v end)
 makeTog(e, "Box", function() return S.box end, function(v) S.box = v end)
 makeTog(e, "Skeleton", function() return S.skel end, function(v) S.skel = v end)
 makeTog(e, "Health", function() return S.hp end, function(v) S.hp = v end)
 makeTog(e, "Names", function() return S.name end, function(v) S.name = v end)
 makeTog(e, "Distance", function() return S.dist end, function(v) S.dist = v end)
-makeTog(e, "Rainbow", function() return S.rainbow end, function(v) S.rainbow = v end)
 
-local a = createTab("Aim", "[O]")
-makeTog(a, "Enable Aim (Hold E)", function() return S.aim end, function(v) S.aim = v end)
+local a = createTab("Aim")
+makeTog(a, "Enable Aim (E)", function() return S.aim end, function(v) S.aim = v end)
 makeSld(a, "FOV", 30, 300, function() return S.aimFOV end, function(v) S.aimFOV = v end)
 makeSld(a, "Smooth", 1, 100, function() return math.floor(S.aimSmooth * 100) end, function(v) S.aimSmooth = v / 100 end)
 
-local m = createTab("Move", "[>]")
+local m = createTab("Move")
 makeTog(m, "Speed", function() return S.speed end, function(v) S.speed = v end)
 makeSld(m, "Speed Val", 16, 150, function() return S.speedVal end, function(v) S.speedVal = v end)
 makeSld(m, "Jump", 50, 250, function() return S.jump end, function(v) S.jump = v end)
 makeTog(m, "Inf Jump", function() return S.infJump end, function(v) S.infJump = v end)
 makeTog(m, "Noclip", function() return S.noclip end, function(v) S.noclip = v end)
 
-local l = createTab("Look", "[*]")
+local l = createTab("Look")
 makeTog(l, "Fullbright", function() return S.fullbright end, function(v) S.fullbright = v end)
 makeTog(l, "Invisible", function() return S.invis end, function(v) S.invis = v end)
 makeTog(l, "Hide Head", function() return S.hideHead end, function(v) S.hideHead = v end)
 
 selectTab(1)
-print("Goodbye")
