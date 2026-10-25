@@ -16,10 +16,10 @@ local function getChar() return LP.Character end
 local function getHum() local c=getChar(); return c and c:FindFirstChildOfClass("Humanoid") end
 local function getHRP() local c=getChar(); return c and c:FindFirstChild("HumanoidRootPart") end
 
+-- ESP SYSTEM
 local espObjs = {}
 local HAS_DRW = pcall(function() return Drawing.new("Square") end)
 local function clearESP() for _,e in pairs(espObjs) do for _,o in pairs(e) do if type(o)=="table" and o.Remove then pcall(function() o:Remove() end) end end if e.bones then for _,b in ipairs(e.bones) do pcall(function() b:Remove() end) end end end espObjs={} end
-
 local function initESP()
     clearESP(); if not HAS_DRW then return end
     for _,p in pairs(Players:GetPlayers()) do if p~=LP then
@@ -31,10 +31,8 @@ local function initESP()
         table.insert(espObjs,e)
     end end
 end
-
 local R15={{"Head","UpperTorso"},{"UpperTorso","LowerTorso"},{"UpperTorso","LeftUpperArm"},{"LeftUpperArm","LeftLowerArm"},{"LeftLowerArm","LeftHand"},{"UpperTorso","RightUpperArm"},{"RightUpperArm","RightLowerArm"},{"RightLowerArm","RightHand"},{"LowerTorso","LeftUpperLeg"},{"LeftUpperLeg","LeftLowerLeg"},{"LeftLowerLeg","LeftFoot"},{"LowerTorso","RightUpperLeg"},{"RightUpperLeg","RightLowerLeg"},{"RightLowerLeg","RightFoot"}}
 local R6={{"Head","Torso"},{"Torso","Left Arm"},{"Torso","Right Arm"},{"Torso","Left Leg"},{"Torso","Right Leg"}}
-
 local function updateESP()
     if not HAS_DRW then return end
     local c = S.rainbow and Color3.fromHSV((tick()*0.5)%1,1,1) or colors[S.colorIdx]
@@ -67,6 +65,21 @@ local function updateESP()
     end
 end
 initESP(); Players.PlayerAdded:Connect(initESP)
+
+-- FORCE SPEED & JUMP (BYPASS ANTI-CHEAT)
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+        local hum = getHum()
+        if hum then
+            if S.speed then hum.WalkSpeed = S.speedVal else if not S.fly then hum.WalkSpeed = 16 end end
+            if S.infJump then
+                hum:ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+            if hum.UseJumpPower then hum.JumpPower = S.jump else hum.JumpHeight = S.jump * 0.15 end
+        end
+    end
+end)
 
 local aimKeyHeld = false; local origTrans = {}; local savedPos = nil
 local function applySize(scale)
@@ -140,11 +153,6 @@ RS.RenderStepped:Connect(function(dt)
 end)
 
 RS.Heartbeat:Connect(function()
-    local hum = getHum()
-    if hum then
-        if S.speed then hum.WalkSpeed = S.speedVal else if not S.fly then hum.WalkSpeed = 16 end end
-        if hum.UseJumpPower then hum.JumpPower = S.jump else hum.JumpHeight = S.jump * 0.15 end
-    end
     local ch = getChar(); if ch and S.noclip then for _, p in pairs(ch:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide = false end end end
     updateVisuals()
     local hrp = getHRP()
@@ -154,10 +162,10 @@ RS.Heartbeat:Connect(function()
     end
 end)
 
-UIS.JumpRequest:Connect(function() if S.infJump then local h = getHum(); if h then h:ChangeState(Enum.HumanoidStateType.Jumping) end end end)
 UIS.InputBegan:Connect(function(i, g) if not g and i.KeyCode == Enum.KeyCode.E then aimKeyHeld = true end end)
 UIS.InputEnded:Connect(function(i, g) if not g and i.KeyCode == Enum.KeyCode.E then aimKeyHeld = false end end)
 
+-- UI DESIGN (TEXTBOX FIX)
 local COL = {bg = Color3.fromRGB(10, 10, 10), panel = Color3.fromRGB(20, 20, 20), green = Color3.fromRGB(0, 255, 100), cyan = Color3.fromRGB(0, 200, 255), txt = Color3.fromRGB(255, 255, 255), dim = Color3.fromRGB(150, 150, 150), bad = Color3.fromRGB(255, 50, 50)}
 local gui = Instance.new("ScreenGui"); gui.Name = "NeonBreach"; gui.ResetOnSpawn = false; gui.DisplayOrder = 9999
 pcall(function() if gethui then gui.Parent = gethui() else gui.Parent = CoreGui end end)
@@ -168,15 +176,14 @@ main.BackgroundColor3 = COL.bg; main.BorderSizePixel = 0; main.Active = true; ma
 Instance.new("UICorner", main).CornerRadius = UDim.new(0, 6)
 local stroke = Instance.new("UIStroke", main); stroke.Color = COL.green; stroke.Thickness = 2; stroke.Transparency = 0.2
 
--- Using TextButton instead of TextLabel for ALL texts to fix executor bugs
 local header = Instance.new("Frame", main)
 header.Size = UDim2.new(1, 0, 0, 40); header.BackgroundColor3 = COL.panel; header.BorderSizePixel = 0
 Instance.new("UICorner", header).CornerRadius = UDim.new(0, 6)
-local title = Instance.new("TextButton", header)
+local title = Instance.new("TextBox", header)
 title.Size = UDim2.new(1, -80, 1, 0); title.Position = UDim2.new(0, 15, 0, 0)
-title.BackgroundTransparency = 1; title.Text = "NEON BREACH v9.0"
+title.BackgroundTransparency = 1; title.Text = "NEON BREACH v10.0"
 title.TextColor3 = COL.green; title.TextSize = 16; title.Font = Enum.Font.SourceSansBold; title.TextXAlignment = Enum.TextXAlignment.Left
-title.AutoButtonColor = false
+title.TextEditable = false; title.ClearTextOnFocus = false
 
 local close = Instance.new("TextButton", header)
 close.Size = UDim2.new(0, 30, 0, 30); close.Position = UDim2.new(1, -40, 0, 5)
@@ -200,20 +207,20 @@ local console = Instance.new("Frame", cont)
 console.Size = UDim2.new(1, -20, 0, 150); console.Position = UDim2.new(0, 10, 1, -160)
 console.BackgroundColor3 = Color3.fromRGB(0, 0, 0); console.BorderSizePixel = 0
 local cStroke = Instance.new("UIStroke", console); cStroke.Color = COL.green; cStroke.Thickness = 1
-local cTitle = Instance.new("TextButton", console)
+local cTitle = Instance.new("TextBox", console)
 cTitle.Size = UDim2.new(1, 0, 0, 20); cTitle.BackgroundTransparency = 1
 cTitle.Text = " CONSOLE"; cTitle.TextColor3 = COL.green; cTitle.Font = Enum.Font.SourceSansBold; cTitle.TextXAlignment = Enum.TextXAlignment.Left
-cTitle.AutoButtonColor = false
+cTitle.TextEditable = false
 local cText = Instance.new("ScrollingFrame", console)
 cText.Size = UDim2.new(1, -10, 1, -25); cText.Position = UDim2.new(0, 5, 0, 20)
 cText.BackgroundTransparency = 1; cText.BorderSizePixel = 0; cText.ScrollBarThickness = 2; cText.AutomaticCanvasSize = Enum.AutomaticSize.Y
 local cLayout = Instance.new("UIListLayout", cText); cLayout.Padding = UDim.new(0, 2)
 
 local function Log(msg)
-    local l = Instance.new("TextButton", cText)
+    local l = Instance.new("TextBox", cText)
     l.Size = UDim2.new(1, 0, 0, 16); l.BackgroundTransparency = 1
     l.Text = "> " .. msg; l.TextColor3 = COL.green; l.Font = Enum.Font.SourceSansBold; l.TextSize = 14; l.TextXAlignment = Enum.TextXAlignment.Left
-    l.AutoButtonColor = false
+    l.TextEditable = false; l.ClearTextOnFocus = false
     task.delay(3, function() 
         if l then 
             TweenService:Create(l, TweenInfo.new(1), {TextTransparency = 1}):Play()
@@ -255,10 +262,10 @@ local function makeTog(par, name, get, set)
     local f = Instance.new("Frame", par)
     f.Size = UDim2.new(1, 0, 0, 36); f.BackgroundColor3 = COL.panel; f.BorderSizePixel = 0
     Instance.new("UICorner", f).CornerRadius = UDim.new(0, 4)
-    local l = Instance.new("TextButton", f)
+    local l = Instance.new("TextBox", f)
     l.Size = UDim2.new(1, -60, 1, 0); l.Position = UDim2.new(0, 10, 0, 0); l.BackgroundTransparency = 1
     l.Text = name; l.TextColor3 = COL.txt; l.Font = Enum.Font.SourceSansBold; l.TextSize = 14; l.TextXAlignment = Enum.TextXAlignment.Left
-    l.AutoButtonColor = false; l.ZIndex = 5
+    l.TextEditable = false; l.ClearTextOnFocus = false
     local b = Instance.new("TextButton", f)
     b.Size = UDim2.new(0, 50, 0, 20); b.Position = UDim2.new(1, -60, 0.5, -10)
     b.BackgroundColor3 = COL.bg; b.BorderSizePixel = 0
@@ -275,14 +282,14 @@ local function makeSld(par, name, min, max, get, set)
     local f = Instance.new("Frame", par)
     f.Size = UDim2.new(1, 0, 0, 50); f.BackgroundColor3 = COL.panel; f.BorderSizePixel = 0
     Instance.new("UICorner", f).CornerRadius = UDim.new(0, 4)
-    local l = Instance.new("TextButton", f)
+    local l = Instance.new("TextBox", f)
     l.Size = UDim2.new(1, -60, 0, 20); l.Position = UDim2.new(0, 10, 0, 5); l.BackgroundTransparency = 1
     l.Text = name; l.TextColor3 = COL.txt; l.Font = Enum.Font.SourceSansBold; l.TextSize = 14; l.TextXAlignment = Enum.TextXAlignment.Left
-    l.AutoButtonColor = false; l.ZIndex = 5
-    local v = Instance.new("TextButton", f)
+    l.TextEditable = false; l.ClearTextOnFocus = false
+    local v = Instance.new("TextBox", f)
     v.Size = UDim2.new(0, 50, 0, 20); v.Position = UDim2.new(1, -60, 0, 5); v.BackgroundTransparency = 1
     v.Text = tostring(get()); v.TextColor3 = COL.cyan; v.Font = Enum.Font.SourceSansBold; v.TextSize = 14; v.TextXAlignment = Enum.TextXAlignment.Right
-    v.AutoButtonColor = false; v.ZIndex = 5
+    v.TextEditable = false; v.ClearTextOnFocus = false
     local tr = Instance.new("TextButton", f)
     tr.Size = UDim2.new(1, -20, 0, 4); tr.Position = UDim2.new(0, 10, 0, 35)
     tr.BackgroundColor3 = COL.bg; tr.Text = ""; tr.BorderSizePixel = 0; tr.AutoButtonColor = false
