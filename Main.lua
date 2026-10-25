@@ -8,7 +8,6 @@ local WS = workspace
 local LP = Players.LocalPlayer
 local Cam = WS.CurrentCamera
 
--- ═══════ CONFIGURATION ═══════
 local S = {
     esp = true, box = true, skel = true, hp = true, name = true, dist = true, tracer = false,
     colorIdx = 1, rainbow = false,
@@ -24,145 +23,79 @@ local colors = {
     Color3.fromRGB(255, 50, 50), Color3.fromRGB(255, 255, 50), 
     Color3.fromRGB(200, 50, 255)
 }
-
 local bodyColors = {
     Color3.fromRGB(255, 0, 0), Color3.fromRGB(0, 0, 255), 
     Color3.fromRGB(0, 255, 0), Color3.fromRGB(0, 0, 0), 
-    Color3.fromRGB(255, 255, 255), Color3.fromRGB(255, 165, 0),
-    Color3.fromRGB(128, 0, 128), Color3.fromRGB(255, 192, 203)
+    Color3.fromRGB(255, 255, 255), Color3.fromRGB(255, 165, 0)
 }
 
 local function getChar() return LP.Character end
 local function getHum() local c = getChar(); return c and c:FindFirstChildOfClass("Humanoid") end
 local function getHRP() local c = getChar(); return c and c:FindFirstChild("HumanoidRootPart") end
 
--- ═══════ ESP SYSTEM ═══════
 local espObjs = {}
 local HAS_DRW = pcall(function() return Drawing.new("Square") end)
 
 local function clearESP()
     for _, e in pairs(espObjs) do
-        for _, o in pairs(e) do 
-            if type(o) == "table" and o.Remove then pcall(function() o:Remove() end) end 
-        end
-        if e.bones then 
-            for _, b in ipairs(e.bones) do pcall(function() b:Remove() end) end 
-        end
+        for _, o in pairs(e) do if type(o) == "table" and o.Remove then pcall(function() o:Remove() end) end end
+        if e.bones then for _, b in ipairs(e.bones) do pcall(function() b:Remove() end) end end
     end
     espObjs = {}
 end
 
 local function initESP()
-    clearESP()
-    if not HAS_DRW then return end
+    clearESP(); if not HAS_DRW then return end
     for _, p in pairs(Players:GetPlayers()) do
         if p ~= LP then
-            local e = {
-                box = Drawing.new("Square"), name = Drawing.new("Text"), 
-                dist = Drawing.new("Text"), hpBar = Drawing.new("Square"), 
-                tracer = Drawing.new("Line"), bones = {}, plr = p
-            }
-            e.box.Visible = false; e.box.Thickness = 1.5
-            e.name.Visible = false; e.name.Size = 14; e.name.Center = true; e.name.Outline = true
-            e.dist.Visible = false; e.dist.Size = 12; e.dist.Center = true; e.dist.Outline = true
-            e.hpBar.Visible = false; e.hpBar.Filled = true
-            e.tracer.Visible = false; e.tracer.Thickness = 1
-            for i = 1, 14 do 
-                local l = Drawing.new("Line"); l.Visible = false; l.Thickness = 1.5; table.insert(e.bones, l) 
-            end
-            table.insert(espObjs, e)
+            local e = {box=Drawing.new("Square"), name=Drawing.new("Text"), dist=Drawing.new("Text"), hpBar=Drawing.new("Square"), tracer=Drawing.new("Line"), bones={}, plr=p}
+            e.box.Visible=false; e.box.Thickness=1.5
+            e.name.Visible=false; e.name.Size=14; e.name.Center=true; e.name.Outline=true
+            e.dist.Visible=false; e.dist.Size=12; e.dist.Center=true; e.dist.Outline=true
+            e.hpBar.Visible=false; e.hpBar.Filled=true
+            e.tracer.Visible=false; e.tracer.Thickness=1
+            for i=1,14 do local l=Drawing.new("Line"); l.Visible=false; l.Thickness=1.5; table.insert(e.bones,l) end
+            table.insert(espObjs,e)
         end
     end
 end
 
-local R15_Bones = {
-    {"Head","UpperTorso"},{"UpperTorso","LowerTorso"},{"UpperTorso","LeftUpperArm"},
-    {"LeftUpperArm","LeftLowerArm"},{"LeftLowerArm","LeftHand"},{"UpperTorso","RightUpperArm"},
-    {"RightUpperArm","RightLowerArm"},{"RightLowerArm","RightHand"},{"LowerTorso","LeftUpperLeg"},
-    {"LeftUpperLeg","LeftLowerLeg"},{"LeftLowerLeg","LeftFoot"},{"LowerTorso","RightUpperLeg"},
-    {"RightUpperLeg","RightLowerLeg"},{"RightLowerLeg","RightFoot"}
-}
-local R6_Bones = {
-    {"Head","Torso"},{"Torso","Left Arm"},{"Torso","Right Arm"},
-    {"Torso","Left Leg"},{"Torso","Right Leg"}
-}
+local R15={{"Head","UpperTorso"},{"UpperTorso","LowerTorso"},{"UpperTorso","LeftUpperArm"},{"LeftUpperArm","LeftLowerArm"},{"LeftLowerArm","LeftHand"},{"UpperTorso","RightUpperArm"},{"RightUpperArm","RightLowerArm"},{"RightLowerArm","RightHand"},{"LowerTorso","LeftUpperLeg"},{"LeftUpperLeg","LeftLowerLeg"},{"LeftLowerLeg","LeftFoot"},{"LowerTorso","RightUpperLeg"},{"RightUpperLeg","RightLowerLeg"},{"RightLowerLeg","RightFoot"}}
+local R6={{"Head","Torso"},{"Torso","Left Arm"},{"Torso","Right Arm"},{"Torso","Left Leg"},{"Torso","Right Leg"}}
 
 local function updateESP()
     if not HAS_DRW then return end
-    local c = S.rainbow and Color3.fromHSV((tick() * 0.5) % 1, 1, 1) or colors[S.colorIdx]
+    local c = S.rainbow and Color3.fromHSV((tick()*0.5)%1,1,1) or colors[S.colorIdx]
     for _, e in ipairs(espObjs) do
-        local ch = e.plr.Character
-        local hrp = ch and ch:FindFirstChild("HumanoidRootPart")
-        local head = ch and ch:FindFirstChild("Head")
-        local hum = ch and ch:FindFirstChildOfClass("Humanoid")
-        local show = S.esp and hrp and head and hum and hum.Health > 0
-        
+        local ch=e.plr.Character; local hrp,head,hum=ch and ch:FindFirstChild("HumanoidRootPart"),ch and ch:FindFirstChild("Head"),ch and ch:FindFirstChildOfClass("Humanoid")
+        local show=S.esp and hrp and head and hum and hum.Health>0
         if show then
-            local d = (getHRP().Position - hrp.Position).Magnitude
-            if d < 1000 then
-                local top, tv = Cam:WorldToViewportPoint(head.Position + Vector3.new(0, 0.5, 0))
-                local bot, bv = Cam:WorldToViewportPoint(hrp.Position - Vector3.new(0, 2.5, 0))
-                
+            local d=(getHRP().Position-hrp.Position).Magnitude
+            if d<1000 then
+                local top,tv=Cam:WorldToViewportPoint(head.Position+Vector3.new(0,0.5,0)); local bot,bv=Cam:WorldToViewportPoint(hrp.Position-Vector3.new(0,2.5,0))
                 if tv and bv then
-                    local bh = math.abs(top.Y - bot.Y)
-                    local bw = bh * 0.55
-                    local bx = top.X - bw / 2
-                    local by = top.Y
-                    
-                    e.box.Visible = S.box
-                    if S.box then e.box.Color = c; e.box.Size = Vector2.new(bw, bh); e.box.Position = Vector2.new(bx, by) end
-                    e.name.Visible = S.name
-                    if S.name then e.name.Text = e.plr.Name; e.name.Position = Vector2.new(top.X, by - 18); e.name.Color = c end
-                    e.dist.Visible = S.dist
-                    if S.dist then e.dist.Text = string.format("%.0fm", d / 3.5); e.dist.Position = Vector2.new(top.X, bot.Y + 2); e.dist.Color = c end
-                    e.hpBar.Visible = S.hp
-                    if S.hp then 
-                        e.hpBar.Size = Vector2.new(4, bh * (hum.Health / hum.MaxHealth))
-                        e.hpBar.Position = Vector2.new(bx - 8, by + bh * (1 - hum.Health / hum.MaxHealth))
-                        e.hpBar.Color = Color3.new(1 - hum.Health / hum.MaxHealth, hum.Health / hum.MaxHealth, 0)
+                    local bh=math.abs(top.Y-bot.Y); local bw=bh*0.55; local bx=top.X-bw/2; local by=top.Y
+                    e.box.Visible=S.box; if S.box then e.box.Color=c; e.box.Size=Vector2.new(bw,bh); e.box.Position=Vector2.new(bx,by) end
+                    e.name.Visible=S.name; if S.name then e.name.Text=e.plr.Name; e.name.Position=Vector2.new(top.X,by-18); e.name.Color=c end
+                    e.dist.Visible=S.dist; if S.dist then e.dist.Text=string.format("%.0fm",d/3.5); e.dist.Position=Vector2.new(top.X,bot.Y+2); e.dist.Color=c end
+                    e.hpBar.Visible=S.hp; if S.hp then e.hpBar.Size=Vector2.new(4,bh*(hum.Health/hum.MaxHealth)); e.hpBar.Position=Vector2.new(bx-8,by+bh*(1-hum.Health/hum.MaxHealth)); e.hpBar.Color=Color3.new(1-hum.Health/hum.MaxHealth,hum.Health/hum.MaxHealth,0) end
+                    e.tracer.Visible=S.tracer; if S.tracer then e.tracer.From=Vector2.new(Cam.ViewportSize.X/2,Cam.ViewportSize.Y); e.tracer.To=Vector2.new(top.X,by+bh); e.tracer.Color=c end
+                    local bns=(hum.RigType==Enum.HumanoidRigType.R15) and R15 or R6
+                    for i=1,#e.bones do
+                        if S.skel and i<=#bns then
+                            local p1,p2=ch:FindFirstChild(bns[i][1]),ch:FindFirstChild(bns[i][2])
+                            if p1 and p2 then local s1,v1=Cam:WorldToViewportPoint(p1.Position); local s2,v2=Cam:WorldToViewportPoint(p2.Position)
+                                if v1 and v2 then e.bones[i].Visible=true; e.bones[i].From=Vector2.new(s1.X,s1.Y); e.bones[i].To=Vector2.new(s2.X,s2.Y); e.bones[i].Color=c else e.bones[i].Visible=false end
+                            else e.bones[i].Visible=false end
+                        else e.bones[i].Visible=false end
                     end
-                    e.tracer.Visible = S.tracer
-                    if S.tracer then 
-                        e.tracer.From = Vector2.new(Cam.ViewportSize.X / 2, Cam.ViewportSize.Y)
-                        e.tracer.To = Vector2.new(top.X, by + bh)
-                        e.tracer.Color = c 
-                    end
-                    
-                    local bns = (hum.RigType == Enum.HumanoidRigType.R15) and R15_Bones or R6_Bones
-                    for i = 1, #e.bones do
-                        if S.skel and i <= #bns then
-                            local p1, p2 = ch:FindFirstChild(bns[i][1]), ch:FindFirstChild(bns[i][2])
-                            if p1 and p2 then
-                                local s1, v1 = Cam:WorldToViewportPoint(p1.Position)
-                                local s2, v2 = Cam:WorldToViewportPoint(p2.Position)
-                                if v1 and v2 then
-                                    e.bones[i].Visible = true
-                                    e.bones[i].From = Vector2.new(s1.X, s1.Y)
-                                    e.bones[i].To = Vector2.new(s2.X, s2.Y)
-                                    e.bones[i].Color = c
-                                else e.bones[i].Visible = false end
-                            else e.bones[i].Visible = false end
-                        else e.bones[i].Visible = false end
-                    end
-                else
-                    e.box.Visible = false; e.name.Visible = false; e.dist.Visible = false; e.hpBar.Visible = false; e.tracer.Visible = false
-                    for _, b in ipairs(e.bones) do b.Visible = false end
-                end
-            else
-                e.box.Visible = false; e.name.Visible = false; e.dist.Visible = false; e.hpBar.Visible = false; e.tracer.Visible = false
-                for _, b in ipairs(e.bones) do b.Visible = false end
-            end
-        else
-            e.box.Visible = false; e.name.Visible = false; e.dist.Visible = false; e.hpBar.Visible = false; e.tracer.Visible = false
-            for _, b in ipairs(e.bones) do b.Visible = false end
-        end
+                else e.box.Visible=false; e.name.Visible=false; e.dist.Visible=false; e.hpBar.Visible=false; e.tracer.Visible=false; for _,b in ipairs(e.bones) do b.Visible=false end end
+            else e.box.Visible=false; e.name.Visible=false; e.dist.Visible=false; e.hpBar.Visible=false; e.tracer.Visible=false; for _,b in ipairs(e.bones) do b.Visible=false end end
+        else e.box.Visible=false; e.name.Visible=false; e.dist.Visible=false; e.hpBar.Visible=false; e.tracer.Visible=false; for _,b in ipairs(e.bones) do b.Visible=false end end
     end
 end
+initESP(); Players.PlayerAdded:Connect(initESP)
 
-initESP()
-Players.PlayerAdded:Connect(initESP)
-
--- ═══════ MECHANICS & SIZE FIX ═══════
 local aimKeyHeld = false
 local origTrans = {}
 
@@ -170,14 +103,12 @@ local function applySize(scale)
     S.size = scale
     local char, hum = getChar(), getHum()
     if not char or not hum then return end
-    
     if hum.RigType == Enum.HumanoidRigType.R15 then
         local desc = hum:FindFirstChildOfClass("HumanoidDescription")
         if not desc then desc = Instance.new("HumanoidDescription"); desc.Parent = hum end
         desc.BodyHeightScale = scale; desc.BodyWidthScale = scale; desc.BodyDepthScale = scale; desc.HeadScale = scale
         pcall(function() hum:ApplyDescription(desc) end)
     end
-    
     local hrp = getHRP()
     if hrp and scale < 1 then
         local offset = (2.5 - (2.5 * scale)) + 0.5
@@ -221,11 +152,8 @@ LP.CharacterAdded:Connect(function(c)
     applySize(S.size)
 end)
 
--- ═══════ MAIN LOOPS ═══════
 RS.RenderStepped:Connect(function(dt)
     updateESP()
-    
-    -- Aim Logic (E Key)
     if S.aim and aimKeyHeld then
         local cl, b = nil, S.aimFOV
         local center = Vector2.new(Cam.ViewportSize.X / 2, Cam.ViewportSize.Y / 2)
@@ -243,8 +171,6 @@ RS.RenderStepped:Connect(function(dt)
             Cam.CFrame = Cam.CFrame:Lerp(tcf, 1 - math.exp(-S.aimSmooth * dt * 60))
         end
     end
-    
-    -- Fly Logic
     if S.fly then
         local hrp, hum = getHRP(), getHum()
         if hrp and hum then
@@ -257,10 +183,7 @@ RS.RenderStepped:Connect(function(dt)
             if UIS:IsKeyDown(Enum.KeyCode.Space) then dir += Vector3.yAxis end
             if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then dir -= Vector3.yAxis end
             local lv, ao = hrp:FindFirstChild("FlyLV"), hrp:FindFirstChild("FlyAO")
-            if lv and ao then 
-                lv.VectorVelocity = dir * S.flySpeed
-                ao.CFrame = Cam.CFrame
-            end
+            if lv and ao then lv.VectorVelocity = dir * S.flySpeed; ao.CFrame = Cam.CFrame end
             hrp.Velocity = Vector3.zero
         end
     end
@@ -272,46 +195,21 @@ RS.Heartbeat:Connect(function()
         if S.speed then hum.WalkSpeed = S.speedVal else if not S.fly then hum.WalkSpeed = 16 end end
         if hum.UseJumpPower then hum.JumpPower = S.jump else hum.JumpHeight = S.jump * 0.15 end
     end
-    
     local ch = getChar()
-    if ch and S.noclip then 
-        for _, p in pairs(ch:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide = false end end 
-    end
-    
+    if ch and S.noclip then for _, p in pairs(ch:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide = false end end end
     updateVisuals()
-    
     local hrp = getHRP()
     if hrp then
-        if S.glow then 
-            local l = hrp:FindFirstChild("Glow") or Instance.new("PointLight", hrp)
-            l.Name = "Glow"; l.Brightness = 4; l.Range = 20; l.Color = Color3.fromHSV((tick() * 0.5) % 1, 1, 1) 
-        else 
-            local l = hrp:FindFirstChild("Glow"); if l then l:Destroy() end 
-        end
+        if S.glow then local l = hrp:FindFirstChild("Glow") or Instance.new("PointLight", hrp); l.Name = "Glow"; l.Brightness = 4; l.Range = 20; l.Color = Color3.fromHSV((tick()*0.5)%1, 1, 1) 
+        else local l = hrp:FindFirstChild("Glow"); if l then l:Destroy() end end
     end
 end)
 
-UIS.JumpRequest:Connect(function() 
-    if S.infJump then local h = getHum(); if h then h:ChangeState(Enum.HumanoidStateType.Jumping) end end 
-end)
-
-UIS.InputBegan:Connect(function(i, g) 
-    if not g and i.KeyCode == Enum.KeyCode.E then aimKeyHeld = true end 
-end)
-UIS.InputEnded:Connect(function(i, g) 
-    if not g and i.KeyCode == Enum.KeyCode.E then aimKeyHeld = false end 
-end)
-
--- ═══════ UI DESIGN (NEON BREACH) ═══════
-local COL = {
-    bg = Color3.fromRGB(5, 10, 10), panel = Color3.fromRGB(10, 20, 15),
-    green = Color3.fromRGB(0, 255, 100), cyan = Color3.fromRGB(0, 200, 255),
-    txt = Color3.fromRGB(200, 255, 200), dim = Color3.fromRGB(50, 100, 70),
-    bad = Color3.fromRGB(255, 50, 50)
-}
-
-local gui = Instance.new("ScreenGui")
-gui.Name = "NeonBreach"; gui.ResetOnSpawn = false; gui.DisplayOrder = 9999
+UIS.JumpRequest:Connect(function() if S.infJump then local h = getHum(); if h then h:ChangeState(Enum.HumanoidStateType.Jumping) end end end)
+UIS.InputBegan:Connect(function(i, g) if not g and i.KeyCode == Enum.KeyCode.E then aimKeyHeld = true end end)
+UIS.InputEnded:Connect(function(i, g) if not g and i.KeyCode == Enum.KeyCode.E then aimKeyHeld = false end end)
+local COL = {bg = Color3.fromRGB(5, 10, 10), panel = Color3.fromRGB(10, 20, 15), green = Color3.fromRGB(0, 255, 100), cyan = Color3.fromRGB(0, 200, 255), txt = Color3.fromRGB(200, 255, 200), dim = Color3.fromRGB(50, 100, 70), bad = Color3.fromRGB(255, 50, 50)}
+local gui = Instance.new("ScreenGui"); gui.Name = "NeonBreach"; gui.ResetOnSpawn = false; gui.DisplayOrder = 9999
 pcall(function() if gethui then gui.Parent = gethui() else gui.Parent = CoreGui end end)
 
 local main = Instance.new("Frame", gui)
@@ -462,7 +360,6 @@ local function makeBtn(par, name, cb)
     b.MouseButton1Click:Connect(function() cb(); Log(string.upper(name) .. " EXECUTED") end)
 end
 
--- ═══════ TAB POPULATION ═══════
 local e = createTab("ESP", "[+]")
 makeTog(e, "Enable ESP", function() return S.esp end, function(v) S.esp = v end)
 makeTog(e, "Box", function() return S.box end, function(v) S.box = v end)
@@ -474,7 +371,7 @@ makeTog(e, "Rainbow", function() return S.rainbow end, function(v) S.rainbow = v
 makeBtn(e, "CHANGE COLOR", function() S.colorIdx = (S.colorIdx % #colors) + 1 end)
 
 local a = createTab("Aim", "[O]")
-makeTog(a, "Enable Aim", function() return S.aim end, function(v) S.aim = v end)
+makeTog(a, "Enable Aim (Hold E)", function() return S.aim end, function(v) S.aim = v end)
 makeSld(a, "FOV", 30, 300, function() return S.aimFOV end, function(v) S.aimFOV = v end)
 makeSld(a, "Smooth", 1, 100, function() return math.floor(S.aimSmooth * 100) end, function(v) S.aimSmooth = v / 100 end)
 
@@ -509,5 +406,34 @@ makeTog(l, "Invisible", function() return S.invis end, function(v) S.invis = v e
 makeTog(l, "Hide Head", function() return S.hideHead end, function(v) S.hideHead = v end)
 makeTog(l, "Hide L-Leg", function() return S.hideLLeg end, function(v) S.hideLLeg = v end)
 makeTog(l, "Hide R-Leg", function() return S.hideRLeg end, function(v) S.hideRLeg = v end)
-makeTog(l, "Fullbright", function() return S.fullbright end, function(v) 
-    S.fullbright =
+makeTog(l, "Fullbright", function() return S.fullbright end, function(v) S.fullbright = v; Lighting.Brightness = v and 2 or 0.5; Lighting.Ambient = v and Color3.new(1,1,1) or Color3.fromRGB(70,70,70) end)
+
+local soc = createTab("Social", "[!]")
+makeBtn(soc, "CYCLE BODY COLOR", function() 
+    S.bodyColor = (S.bodyColor % #bodyColors) + 1
+    local hum = getHum()
+    if hum then
+        local desc = hum:FindFirstChildOfClass("HumanoidDescription")
+        if not desc then desc = Instance.new("HumanoidDescription"); desc.Parent = hum end
+        desc.TorsoColor = bodyColors[S.bodyColor]; desc.LeftArmColor = bodyColors[S.bodyColor]
+        desc.RightArmColor = bodyColors[S.bodyColor]; desc.LeftLegColor = bodyColors[S.bodyColor]; desc.RightLegColor = bodyColors[S.bodyColor]
+        pcall(function() hum:ApplyDescription(desc) end)
+    end
+end)
+makeTog(soc, "Dance", function() return S.dancing end, function(v) 
+    S.dancing = v 
+    local hum = getHum()
+    if hum then
+        if v then
+            local anim = Instance.new("Animation")
+            anim.AnimationId = "rbxassetid://507771019"
+            local track = hum:LoadAnimation(anim)
+            track:Play()
+        else
+            for _, t in ipairs(hum:GetPlayingAnimationTracks()) do t:Stop() end
+        end
+    end
+end)
+
+selectTab(1)
+print("Goodbye")
