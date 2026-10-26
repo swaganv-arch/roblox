@@ -1,3 +1,376 @@
-local b64 = "bG9jYWwgUGxheWVycz1nYW1lOkdldFNlcnZpY2UoIlBsYXllcnMiKQpsb2NhbCBVSVM9Z2FtZTpHZXRTZXJ2aWNlKCJVc2VySW5wdXRTZXJ2aWNlIikKbG9jYWwgQ29yZUd1aT1nYW1lOkdldFNlcnZpY2UoIkNvcmVHdWkiKQpsb2NhbCBUd2VlblNlcnZpY2U9Z2FtZTpHZXRTZXJ2aWNlKCJUd2VlblNlcnZpY2UiKQpsb2NhbCBMUD1QbGF5ZXJzLkxvY2FsUGxheWVyCmxvY2FsIGd1aT1JbnN0YW5jZS5uZXcoIlNjcmVlbkd1aSIpCmd1aS5OYW1lPSJTaXplQ2hhbmdlciIKZ3VpLlJlc2V0T25TcGF3bj1mYWxzZQpndWkuRGlzcGxheU9yZGVyPTk5OTkKcGNhbGwoZnVuY3Rpb24oKWlmIGdldGh1aSB0aGVuIGd1aS5QYXJlbnQ9Z2V0aHVpKCllbHNlIGd1aS5QYXJlbnQ9Q29yZUd1aSBlbmQgZW5kKQpsb2NhbCB0YXJnZXRTaXplPTEuMApsb2NhbCBpc09wZW49dHJ1ZQpsb2NhbCBpc0JpbmRpbmc9ZmFsc2UKbG9jYWwgdG9nZ2xlS2V5PUVudW0uS2V5Q29kZS5FcXVhbHMKbG9jYWwgZHJhZ2dpbmdTbGlkZXI9ZmFsc2UKbG9jYWwgZHJhZ0lucHV0PW5pbAppZiBpc2ZpbGUgYW5kIHJlYWRmaWxlIHRoZW4KcGNhbGwoZnVuY3Rpb24oKQppZiBpc2ZpbGUoIkVZWl9TaXplLnR4dCIpIHRoZW4KbG9jYWwgcz10b251bWJlcihyZWFkZmlsZSgiRVlaX1NpemUudHh0IikpCmlmIHMgdGhlbiB0YXJnZXRTaXplPXMgZW5kCmVuZAplbmQpCmVuZApsb2NhbCBmdW5jdGlvbiBzYXZlU2l6ZSgpCmlmIHdyaXRlZmlsZSB0aGVuIHBjYWxsKGZ1bmN0aW9uKCkgd3JpdGVmaWxlKCJFWVpfU2l6ZS50eHQiLHRvc3RyaW5nKHRhcmdldFNpemUpKSBlbmQpIGVuZAplbmQKbG9jYWwgbWFpbj1JbnN0YW5jZS5uZXcoIkZyYW1lIixndWkpCm1haW4uU2l6ZT1VRGltMi5uZXcoMCwyMjAsMCwxMTApCm1haW4uUG9zaXRpb249VURpbTIubmV3KDAuNSwtMTEwLDAuNSwtNTUpCm1haW4uQmFja2dyb3VuZENvbG9yMz1Db2xvcjMuZnJvbVJHQigzNywzNywzNykKbWFpbi5Cb3JkZXJTaXplUGl4ZWw9MAptYWluLkFjdGl2ZT1mYWxzZQptYWluLkNsaXBzRGVzY2VuZGFudHM9dHJ1ZQpsb2NhbCBjb3JuZXI9SW5zdGFuY2UubmV3KCJVSUNvcm5lciIsbWFpbikKY29ybmVyLkNvcm5lclJhZGl1cz1VRGltLm5ldygwLDYpCmxvY2FsIHN0cm9rZT1JbnN0YW5jZS5uZXcoIlVJU3Ryb2tlIixtYWluKQpzdHJva2UuQ29sb3I9Q29sb3IzLmZyb21SR0IoNjAsNjAsNjApCnN0cm9rZS5UaGlja25lc3M9MQpzdHJva2UuQXBwbHlTdHJva2VNb2RlPUVudW0uQXBwbHlTdHJva2VNb2RlLkJvcmRlcgpsb2NhbCB0aXRsZT1JbnN0YW5jZS5uZXcoIlRleHRCdXR0b24iLG1haW4pCnRpdGxlLlNpemU9VURpbTIubmV3KDEsLTgwLDAsMjYpCnRpdGxlLlBvc2l0aW9uPVVEaW0yLm5ldygwLDEyLDAsNCkKdGl0bGUuQmFja2dyb3VuZFRyYW5zcGFyZW5jeT0xCnRpdGxlLlRleHQ9IlNpemUgQ29udHJvbCIKdGl0bGUuVGV4dENvbG9yMz1Db2xvcjMuZnJvbVJHQigyNDAsMjQwLDI0MCkKdGl0bGUuVGV4dFNpemU9MTMKdGl0bGUuRm9udD1FbnVtLkZvbnQuR290aGFtTWVkaXVtCnRpdGxlLlRleHRYQWxpZ25tZW50PUVudW0uVGV4dFhBbGlnbm1lbnQuTGVmdAp0aXRsZS5BdXRvQnV0dG9uQ29sb3I9ZmFsc2UKdGl0bGUuQWN0aXZlPWZhbHNlCmxvY2FsIGtleWJpbmRCdG49SW5zdGFuY2UubmV3KCJUZXh0QnV0dG9uIixtYWluKQprZXliaW5kQnRuLlNpemU9VURpbTIubmV3KDAsMzAsMCwyMCkKa2V5YmluZEJ0bi5Qb3NpdGlvbj1VRGltMi5uZXcoMSwtNjUsMCw3KQprZXliaW5kQnRuLkJhY2tncm91bmRDb2xvcjM9Q29sb3IzLmZyb21SR0IoMjgsMjgsMjgpCmtleWJpbmRCdG4uVGV4dD0iPSIKa2V5YmluZEJ0bi5UZXh0Q29sb3IzPUNvbG9yMy5mcm9tUkdCKDIwMCwyMDAsMjAwKQprZXliaW5kQnRuLkZvbnQ9RW51bS5Gb250LkdvdGhhbU1lZGl1bQprZXliaW5kQnRuLlRleHRTaXplPTEyCmtleWJpbmRCdG4uQm9yZGVyU2l6ZVBpeGVsPTAKa2V5YmluZEJ0bi5aSW5kZXg9MwpJbnN0YW5jZS5uZXcoIlVJQ29ybmVyIixrZXliaW5kQnRuKS5Db3JuZXJSYWRpdXM9VURpbS5uZXcoMCw0KQprZXliaW5kQnRuLk1vdXNlRW50ZXI6Q29ubmVjdChmdW5jdGlvbigpIFR3ZWVuU2VydmljZTpDcmVhdGUoa2V5YmluZEJ0bixUd2VlbkluZm8ubmV3KDAuMSkse1RleHRDb2xvcjM9Q29sb3IzLmZyb21SR0IoMjU1LDI1NSwyNTUpfSk6UGxheSgpIGVuZCkKa2V5YmluZEJ0bi5Nb3VzZUxlYXZlOkNvbm5lY3QoZnVuY3Rpb24oKSBpZiBub3QgaXNCaW5kaW5nIHRoZW4gVHdlZW5TZXJ2aWNlOkNyZWF0ZShrZXliaW5kQnRuLFR3ZWVuSW5mby5uZXcoMC4xKSx7VGV4dENvbG9yMz1Db2xvcjMuZnJvbVJHQigyMDAsMjAwLDIwMCl9KTpQbGF5KCkgZW5kIGVuZCkKbG9jYWwgdHJpYW5nbGVCdG49SW5zdGFuY2UubmV3KCJUZXh0QnV0dG9uIixtYWluKQp0cmlhbmdsZUJ0bi5TaXplPVVEaW0yLm5ldygwLDI2LDAsMjYpCnRyaWFuZ2xlQnRuLlBvc2l0aW9uPVVEaW0yLm5ldygxLC0zMCwwLDQpCnRyaWFuZ2xlQnRuLkJhY2tncm91bmRUcmFuc3BhcmVuY3k9MQp0cmlhbmdsZUJ0bi5UZXh0PSLilrwiCnRyaWFuZ2xlQnRuLlRleHRDb2xvcjM9Q29sb3IzLmZyb21SR0IoMjAwLDIwMCwyMDApCnRyaWFuZ2xlQnRuLkZvbnQ9RW51bS5Gb250LkdvdGhhbU1lZGl1bQp0cmlhbmdsZUJ0bi5UZXh0U2l6ZT0xMgp0cmlhbmdsZUJ0bi5BdXRvQnV0dG9uQ29sb3I9ZmFsc2UKdHJpYW5nbGVCdG4uWkluZGV4PTMKdHJpYW5nbGVCdG4uTW91c2VFbnRlcjpDb25uZWN0KGZ1bmN0aW9uKCkgVHdlZW5TZXJ2aWNlOkNyZWF0ZSh0cmlhbmdsZUJ0bixUd2VlbkluZm8ubmV3KDAuMSkse1RleHRDb2xvcjM9Q29sb3IzLmZyb21SR0IoMjU1LDI1NSwyNTUpfSk6UGxheSgpIGVuZCkKdHJpYW5nbGVCdG4uTW91c2VMZWF2ZTpDb25uZWN0KGZ1bmN0aW9uKCkgVHdlZW5TZXJ2aWNlOkNyZWF0ZSh0cmlhbmdsZUJ0bixUd2VlbkluZm8ubmV3KDAuMSkse1RleHRDb2xvcjM9Q29sb3IzLmZyb21SR0IoMjAwLDIwMCwyMDApfSk6UGxheSgpIGVuZCkKbG9jYWwgZXhwYW5kQnRuPUluc3RhbmNlLm5ldygiRnJhbWUiLG1haW4pCmV4cGFuZEJ0bi5TaXplPVVEaW0yLm5ldygxLDAsMSwwKQpleHBhbmRCdG4uQmFja2dyb3VuZFRyYW5zcGFyZW5jeT0xCmV4cGFuZEJ0bi5WaXNpYmxlPWZhbHNlCmV4cGFuZEJ0bi5aSW5kZXg9MTAKbG9jYWwgZHJhZ1RvcD1JbnN0YW5jZS5uZXcoIkZyYW1lIixtYWluKQpkcmFnVG9wLlNpemU9VURpbTIubmV3KDEsMCwwLDIwKQpkcmFnVG9wLlBvc2l0aW9uPVVEaW0yLm5ldygwLDAsMCwwKQpkcmFnVG9wLkJhY2tncm91bmRUcmFuc3BhcmVuY3k9MQpkcmFnVG9wLkFjdGl2ZT10cnVlCmxvY2FsIGRyYWdCb3Q9SW5zdGFuY2UubmV3KCJGcmFtZSIsbWFpbikKZHJhZ0JvdC5TaXplPVVEaW0yLm5ldygxLDAsMCwyMCkKZHJhZ0JvdC5Qb3NpdGlvbj1VRGltMi5uZXcoMCwwLDEsLTIwKQpkcmFnQm90LkJhY2tncm91bmRUcmFuc3BhcmVuY3k9MQpkcmFnQm90LkFjdGl2ZT10cnVlCmxvY2FsIGRyYWdMZWZ0PUluc3RhbmNlLm5ldygiRnJhbWUiLG1haW4pCmRyYWdMZWZ0LlNpemU9VURpbTIubmV3KDAsMjAsMSwwKQpkcmFnTGVmdC5Qb3NpdGlvbj1VRGltMi5uZXcoMCwwLDAsMCkKZHJhZ0xlZnQuQmFja2dyb3VuZFRyYW5zcGFyZW5jeT0xCmRyYWdMZWZ0LkFjdGl2ZT10cnVlCmxvY2FsIGRyYWdSaWdodD1JbnN0YW5jZS5uZXcoIkZyYW1lIixtYWluKQpkcmFnUmlnaHQuU2l6ZT1VRGltMi5uZXcoMCwyMCwxLDApCmRyYWdSaWdodC5Qb3NpdGlvbj1VRGltMi5uZXcoMSwtMjAsMCwwKQpkcmFnUmlnaHQuQmFja2dyb3VuZFRyYW5zcGFyZW5jeT0xCmRyYWdSaWdodC5BY3RpdmU9dHJ1ZQpsb2NhbCBkcmFnZ2luZ1dpbmRvdz1mYWxzZQpsb2NhbCBpc0RyYWdnaW5nPWZhbHNlCmxvY2FsIGRyYWdTdGFydD1uaWwKbG9jYWwgc3RhcnRQb3M9bmlsCmxvY2FsIGZ1bmN0aW9uIGF0dGFjaERyYWcoZikKZi5JbnB1dEJlZ2FuOkNvbm5lY3QoZnVuY3Rpb24oaW5wdXQpCmlmIGlucHV0LlVzZXJJbnB1dFR5cGU9PUVudW0uVXNlcklucHV0VHlwZS5Nb3VzZUJ1dHRvbjEgb3IgaW5wdXQuVXNlcklucHV0VHlwZT09RW51bS5Vc2VySW5wdXRUeXBlLlRvdWNoIHRoZW4KZHJhZ2dpbmdXaW5kb3c9dHJ1ZQppc0RyYWdnaW5nPWZhbHNlCmRyYWdTdGFydD1pbnB1dC5Qb3NpdGlvbgpzdGFydFBvcz1tYWluLlBvc2l0aW9uCmlucHV0LkNoYW5nZWQ6Q29ubmVjdChmdW5jdGlvbigpCmlmIGlucHV0LlVzZXJJbnB1dFN0YXRlPT1FbnVtLlVzZXJJbnB1dFN0YXRlLkVuZCB0aGVuCmlmIGRyYWdnaW5nV2luZG93IHRoZW4KZHJhZ2dpbmdXaW5kb3c9ZmFsc2UKaWYgbm90IGlzRHJhZ2dpbmcgYW5kIGY9PWV4cGFuZEJ0biB0aGVuCnRvZ2dsZVVJKCkKZW5kCmVuZAplbmQKZW5kKQplbmQKZW5kKQplbmQKYXR0YWNoRHJhZyhkcmFnVG9wKQphdHRhY2hEcmFnKGRyYWdCb3QpCmF0dGFjaERyYWcoZHJhZ0xlZnQpCmF0dGFjaERyYWcoZHJhZ1JpZ2h0KQphdHRhY2hEcmFnKGV4cGFuZEJ0bikKVUlTLklucHV0Q2hhbmdlZDpDb25uZWN0KGZ1bmN0aW9uKGlucHV0KQppZiBkcmFnZ2luZ1dpbmRvdyBhbmQgKGlucHV0LlVzZXJJbnB1dFR5cGU9PUVudW0uVXNlcklucHV0VHlwZS5Nb3VzZU1vdmVtZW50IG9yIGlucHV0LlVzZXJJbnB1dFR5cGU9PUVudW0uVXNlcklucHV0VHlwZS5Ub3VjaCl0aGVuCmxvY2FsIGRlbHRhPWlucHV0LlBvc2l0aW9uLWRyYWdTdGFydAppZiBkZWx0YS5NYWduaXR1ZGU+NSB0aGVuIGlzRHJhZ2dpbmc9dHJ1ZSBlbmQKaWYgaXNEcmFnZ2luZyB0aGVuCm1haW4uUG9zaXRpb249VURpbTIubmV3KHN0YXJ0UG9zLlguU2NhbGUsc3RhcnRQb3MuWC5PZmZzZXQrZGVsdGEuWCxzdGFydFBvcy5ZLlNjYWxlLHN0YXJ0UG9zLlkuT2Zmc2V0K2RlbHRhLlkpCmVuZAplbmQKZW5kKQpsb2NhbCBzaXplQm94PUluc3RhbmNlLm5ldygiVGV4dEJveCIsbWFpbikKc2l6ZUJveC5TaXplPVVEaW0yLm5ldygwLDQ0LDAsMjIpCnNpemVCb3guUG9zaXRpb249VURpbTIubmV3KDAsMTIsMCwzNikKc2l6ZUJveC5CYWNrZ3JvdW5kQ29sb3IzPUNvbG9yMy5mcm9tUkdCKDI4LDI4LDI4KQpzaXplQm94LlRleHQ9c3RyaW5nLmZvcm1hdCgiJS4xZiIsdGFyZ2V0U2l6ZSkKc2l6ZUJveC5UZXh0Q29sb3IzPUNvbG9yMy5mcm9tUkdCKDI0MCwyNDAsMjQwKQpzaXplQm94LkZvbnQ9RW51bS5Gb250LkdvdGhhbU1lZGl1bQpzaXplQm94LlRleHRTaXplPTEyCnNpemVCb3guQm9yZGVyU2l6ZVBpeGVsPTAKc2l6ZUJveC5aSW5kZXg9MwpJbnN0YW5jZS5uZXcoIlVJQ29ybmVyIixzaXplQm94KS5Db3JuZXJSYWRpdXM9VURpbS5uZXcoMCw0KQpsb2NhbCBzbGlkZXJIaXQ9SW5zdGFuY2UubmV3KCJGcmFtZSIsbWFpbikKc2xpZGVySGl0LlNpemU9VURpbTIubmV3KDAsMTQ0LDAsMjQpCnNsaWRlckhpdC5Qb3NpdGlvbj1VRGltMi5uZXcoMCw2NCwwLDM1KQpzbGlkZXJIaXQuQmFja2dyb3VuZFRyYW5zcGFyZW5jeT0xCnNsaWRlckhpdC5BY3RpdmU9dHJ1ZQpzbGlkZXJIaXQuWkluZGV4PTMKbG9jYWwgc2xpZGVyQmc9SW5zdGFuY2UubmV3KCJGcmFtZSIsc2xpZGVySGl0KQpzbGlkZXJCZy5TaXplPVVEaW0yLm5ldygxLDAsMCw0KQpzbGlkZXJCZy5Qb3NpdGlvbj1VRGltMi5uZXcoMCwwLDAuNSwtMikKc2xpZGVyQmcuQmFja2dyb3VuZENvbG9yMz1Db2xvcjMuZnJvbVJHQigyNiwyNiwyNikKc2xpZGVyQmcuQm9yZGVyU2l6ZVBpeGVsPTAKSW5zdGFuY2UubmV3KCJVSUNvcm5lciIsc2xpZGVyQmcpLkNvcm5lclJhZGl1cz1VRGltLm5ldygxLDApCmxvY2FsIHNsaWRlckZpbGw9SW5zdGFuY2UubmV3KCJGcmFtZSIsc2xpZGVyQmcpCnNsaWRlckZpbGwuU2l6ZT1VRGltMi5uZXcoKHRhcmdldFNpemUtMC40KS8oNC4wLTAuNCksMCwxLDApCnNsaWRlckZpbGwuQmFja2dyb3VuZENvbG9yMz1Db2xvcjMuZnJvbVJHQigyMDgsMjA4LDIwOCkKc2xpZGVyRmlsbC5Cb3JkZXJTaXplUGl4ZWw9MApJbnN0YW5jZS5uZXcoIlVJQ29ybmVyIixzbGlkZXJGaWxsKS5Db3JuZXJSYWRpdXM9VURpbS5uZXcoMSwwKQpsb2NhbCBzbGlkZXJUaHVtYj1JbnN0YW5jZS5uZXcoIkZyYW1lIixzbGlkZXJCZykKc2xpZGVyVGh1bWIuU2l6ZT1VRGltMi5uZXcoMCwxMiwwLDEyKQpzbGlkZXJUaHVtYi5BbmNob3JQb2ludD1WZWN0b3IyLm5ldygwLjUsMC41KQpzbGlkZXJUaHVtYi5Qb3NpdGlvbj1VRGltMi5uZXcoKHRhcmdldFNpemUtMC40KS8oNC4wLTAuNCksMCwwLjUsMCkKc2xpZGVyVGh1bWIuQmFja2dyb3VuZENvbG9yMz1Db2xvcjMuZnJvbVJHQigyNTUsMjU1LDI1NSkKc2xpZGVyVGh1bWIuQm9yZGVyU2l6ZVBpeGVsPTAKSW5zdGFuY2UubmV3KCJVSUNvcm5lciIsc2xpZGVyVGh1bWIpLkNvcm5lclJhZGl1cz1VRGltLm5ldygxLDApCmxvY2FsIHByZXNldEZyYW1lPUluc3RhbmNlLm5ldygiRnJhbWUiLG1haW4pCnByZXNldEZyYW1lLlNpemU9VURpbTIubmV3KDEsLTI0LDAsMjIpCnByZXNldEZyYW1lLlBvc2l0aW9uPVVEaW0yLm5ldygwLDEyLDAsNzYpCnByZXNldEZyYW1lLkJhY2tncm91bmRUcmFuc3BhcmVuY3k9MQpwcmVzZXRGcmFtZS5aSW5kZXg9Mwpsb2NhbCBmdW5jdGlvbiBhcHBseVNlcnZlclNpemUoc2NhbGUpCmxvY2FsIGNoYXI9TFAuQ2hhcmFjdGVyCmlmIG5vdCBjaGFyIHRoZW4gcmV0dXJuIGVuZApsb2NhbCBodW09Y2hhcjpGaW5kRmlyc3RDaGlsZE9mQ2xhc3MoIkh1bWFub2lkIikKaWYgbm90IGh1bSB0aGVuIHJldHVybiBlbmQKcGNhbGwoZnVuY3Rpb24oKSBjaGFyOlNjYWxlVG8oc2NhbGUpIGVuZCkKaWYgaHVtLlJpZ1R5cGU9PUVudW0uSHVtYW5vaWRSaWdUeXBlLlIxNSB0aGVuCmxvY2FsIG9sZERlc2M9aHVtOkZpbmRGaXJzdENoaWxkT2ZDbGFzcygiSHVtYW5vaWREZXNjcmlwdGlvbiIpCmlmIG9sZERlc2MgdGhlbgpsb2NhbCBuZXdEZXNjPW9sZERlc2M6Q2xvbmUoKQpuZXdEZXNjLkJvZHlIZWlnaHRTY2FsZT1zY2FsZQpuZXdEZXNjLkJvZHlXaWR0aFNjYWxlPXNjYWxlCm5ld0Rlc2MuQm9keURlcHRoU2NhbGU9c2NhbGUKbmV3RGVzYy5IZWFkU2NhbGU9c2NhbGUKcGNhbGwoZnVuY3Rpb24oKSBodW06QXBwbHlEZXNjcmlwdGlvbihuZXdEZXNjKSBlbmQpCnRhc2suZGVsYXkoMSxmdW5jdGlvbigpIGlmIG5ld0Rlc2MgdGhlbiBuZXdEZXNjOkRlc3Ryb3koKSBlbmQgZW5kKQplbmQKZW5kCmVuZApsb2NhbCBmdW5jdGlvbiBhcHBseVZpc3VhbFNpemUoc2NhbGUpCmxvY2FsIGNoYXI9TFAuQ2hhcmFjdGVyCmlmIGNoYXIgdGhlbiBwY2FsbChmdW5jdGlvbigpIGNoYXI6U2NhbGVUbyhzY2FsZSkgZW5kKSBlbmQKZW5kCmxvY2FsIGZ1bmN0aW9uIG1ha2VQcmVzZXQodGV4dCx2YWwseFBvcykKbG9jYWwgYnRuPUluc3RhbmNlLm5ldygiVGV4dEJ1dHRvbiIscHJlc2V0RnJhbWUpCmJ0bi5TaXplPVVEaW0yLm5ldygwLjMxLDAsMSwwKQpidG4uUG9zaXRpb249VURpbTIubmV3KHhQb3MsMCwwLDApCmJ0bi5CYWNrZ3JvdW5kQ29sb3IzPUNvbG9yMy5mcm9tUkdCKDQ1LDQ1LDQ1KQpidG4uVGV4dD10ZXh0CmJ0bi5UZXh0Q29sb3IzPUNvbG9yMy5mcm9tUkdCKDIwMCwyMDAsMjAwKQpidG4uRm9udD1FbnVtLkZvbnQuR290aGFtTWVkaXVtCmJ0bi5UZXh0U2l6ZT0xMQpidG4uQm9yZGVyU2l6ZVBpeGVsPTAKSW5zdGFuY2UubmV3KCJVSUNvcm5lciIsYnRuKS5Db3JuZXJSYWRpdXM9VURpbS5uZXcoMCw0KQpidG4uTW91c2VFbnRlcjpDb25uZWN0KGZ1bmN0aW9uKCkgVHdlZW5TZXJ2aWNlOkNyZWF0ZShidG4sVHdlZW5JbmZvLm5ldygwLjEpLHtCYWNrZ3JvdW5kQ29sb3IzPUNvbG9yMy5mcm9tUkdCKDU1LDU1LDU1KX0pOlBsYXkoKSBlbmQpCmJ0bi5Nb3VzZUxlYXZlOkNvbm5lY3QoZnVuY3Rpb24oKSBUd2VlblNlcnZpY2U6Q3JlYXRlKGJ0bixUd2VlbkluZm8ubmV3KDAuMSkse0JhY2tncm91bmRDb2xvcjM9Q29sb3IzLmZyb21SR0IoNDUsNDUsNDUpfSk6UGxheSgpIGVuZCkKYnRuLk1vdXNlQnV0dG9uMUNsaWNrOkNvbm5lY3QoZnVuY3Rpb24oKQp0YXJnZXRTaXplPXZhbApsb2NhbCBwPSh2YWwtMC40KS8oNC4wLTAuNCkKc2l6ZUJveC5UZXh0PXN0cmluZy5mb3JtYXQoIiUuMWYiLHZhbCkKc2xpZGVyRmlsbC5TaXplPVVEaW0yLm5ldyhwLDAsMSwwKQpzbGlkZXJUaHVtYi5Qb3NpdGlvbj1VRGltMi5uZXcocCwwLDAuNSwwKQpzYXZlU2l6ZSgpCmFwcGx5U2VydmVyU2l6ZSh0YXJnZXRTaXplKQplbmQpCmVuZAptYWtlUHJlc2V0KCJTbWFsbCIsMC42LDApCm1ha2VQcmVzZXQoIk5vcm1hbCIsMS4wLDAuMzQpCm1ha2VQcmVzZXQoIkdpYW50IiwyLjUsMC42OSkKbG9jYWwgZnVuY3Rpb24gdXBkYXRlVmlzdWFscyhwY3QpCnNsaWRlckZpbGwuU2l6ZT1VRGltMi5uZXcocGN0LDAsMSwwKQpzbGlkZXJUaHVtYi5Qb3NpdGlvbj1VRGltMi5uZXcocGN0LDAsMC41LDApCmVuZApmdW5jdGlvbiB0b2dnbGVVSSgpCmlzT3Blbj1ub3QgaXNPcGVuCmRyYWdnaW5nU2xpZGVyPWZhbHNlCmRyYWdJbnB1dD1uaWwKZHJhZ2dpbmdXaW5kb3c9ZmFsc2UKaWYgaXNPcGVuIHRoZW4KdGl0bGUuVmlzaWJsZT10cnVlCmtleWJpbmRCdG4uVmlzaWJsZT10cnVlCnRyaWFuZ2xlQnRuLlZpc2libGU9dHJ1ZQpzaXplQm94LlZpc2libGU9dHJ1ZQpzbGlkZXJIaXQuVmlzaWJsZT10cnVlCnByZXNldEZyYW1lLlZpc2libGU9dHJ1ZQpleHBhbmRCdG4uVmlzaWJsZT1mYWxzZQpkcmFnVG9wLlZpc2libGU9dHJ1ZQpkcmFnQm90LlZpc2libGU9dHJ1ZQpkcmFnTGVmdC5WaXNpYmxlPXRydWUKZHJhZ1JpZ2h0LlZpc2libGU9dHJ1ZQpUd2VlblNlcnZpY2U6Q3JlYXRlKG1haW4sVHdlZW5JbmZvLm5ldygwLjMsRW51bS5FYXNpbmdTdHlsZS5RdWFydCxFbnVtLkVhc2luZ0RpcmVjdGlvbi5PdXQpLHtTaXplPVVEaW0yLm5ldygwLDIyMCwwLDExMCl9KTpQbGF5KCkKVHdlZW5TZXJ2aWNlOkNyZWF0ZShjb3JuZXIsVHdlZW5JbmZvLm5ldygwLjMpLHtDb3JuZXJSYWRpdXM9VURpbS5uZXcoMCw2KX0pOlBsYXkoKQpUd2VlblNlcnZpY2U6Q3JlYXRlKHRyaWFuZ2xlQnRuLFR3ZWVuSW5mby5uZXcoMC4zKSx7UG9zaXRpb249VURpbTIubmV3KDEsLTMwLDAsNCl9KTpQbGF5KCkKdHJpYW5nbGVCdG4uVGV4dD0i4pa8IgplbHNlCnRpdGxlLlZpc2libGU9ZmFsc2UKa2V5YmluZEJ0bi5WaXNpYmxlPWZhbHNlCnNpemVCb3guVmlzaWJsZT1mYWxzZQpzbGlkZXJIaXQuVmlzaWJsZT1mYWxzZQpwcmVzZXRGcmFtZS5WaXNpYmxlPWZhbHNlCnRyaWFuZ2xlQnRuLlZpc2libGU9ZmFsc2UKZXhwYW5kQnRuLlZpc2libGU9dHJ1ZQpkcmFnVG9wLlZpc2libGU9ZmFsc2UKZHJhZ0JvdC5WaXNpYmxlPWZhbHNlCmRyYWdMZWZ0LlZpc2libGU9ZmFsc2UKZHJhZ1JpZ2h0LlZpc2libGU9ZmFsc2UKVHdlZW5TZXJ2aWNlOkNyZWF0ZShtYWluLFR3ZWVuSW5mby5uZXcoMC4zLEVudW0uRWFzaW5nU3R5bGUuUXVhcnQsRW51bS5FYXNpbmdEaXJlY3Rpb24uT3V0KSx7U2l6ZT1VRGltMi5uZXcoMCw0MCwwLDQwKX0pOlBsYXkoKQpUd2VlblNlcnZpY2U6Q3JlYXRlKGNvcm5lcixUd2VlbkluZm8ubmV3KDAuMykse0Nvcm5lclJhZGl1cz1VRGltLm5ldygxLDApfSk6UGxheSgpCmVuZAplbmQKdHJpYW5nbGVCdG4uTW91c2VCdXR0b24xQ2xpY2s6Q29ubmVjdChmdW5jdGlvbigpIGlmIGlzT3BlbiB0aGVuIHRvZ2dsZVVJKCkgZW5kIGVuZCkKa2V5YmluZEJ0bi5Nb3VzZUJ1dHRvbjFDbGljazpDb25uZWN0KGZ1bmN0aW9uKCkKaXNCaW5kaW5nPXRydWUKa2V5YmluZEJ0bi5UZXh0PSIuLi4iCmtleWJpbmRCdG4uVGV4dENvbG9yMz1Db2xvcjMuZnJvbVJHQigyNTUsMjU1LDI1NSkKZW5kKQpVSVMuSW5wdXRCZWdhbjpDb25uZWN0KGZ1bmN0aW9uKGlucHV0LGdwKQppZiBncCB0aGVuIHJldHVybiBlbmQKaWYgaXNCaW5kaW5nIHRoZW4KaWYgaW5wdXQuS2V5Q29kZX49RW51bS5LZXlDb2RlLlVua25vd24gdGhlbgp0b2dnbGVLZXk9aW5wdXQuS2V5Q29kZQprZXliaW5kQnRuLlRleHQ9aW5wdXQuS2V5Q29kZS5OYW1lCmlzQmluZGluZz1mYWxzZQprZXliaW5kQnRuLlRleHRDb2xvcjM9Q29sb3IzLmZyb21SR0IoMjAwLDIwMCwyMDApCmVuZApyZXR1cm4KZW5kCmlmIGlucHV0LktleUNvZGU9PXRvZ2dsZUtleSB0aGVuCnRvZ2dsZVVJKCkKZW5kCmVuZCkKc2xpZGVySGl0LklucHV0QmVnYW46Q29ubmVjdChmdW5jdGlvbihpbnB1dCkKaWYgbm90IGlzT3BlbiB0aGVuIHJldHVybiBlbmQKaWYgaW5wdXQuVXNlcklucHV0VHlwZT09RW51bS5Vc2VySW5wdXRUeXBlLk1vdXNlQnV0dG9uMSBvciBpbnB1dC5Vc2VySW5wdXRUeXBlPT1FbnVtLlVzZXJJbnB1dFR5cGUuVG91Y2ggdGhlbgpkcmFnZ2luZ1NsaWRlcj10cnVlCmRyYWdJbnB1dD1pbnB1dApsb2NhbCBwPW1hdGguY2xhbXAoKGlucHV0LlBvc2l0aW9uLlgtc2xpZGVySGl0LkFic29sdXRlUG9zaXRpb24uWCkvc2xpZGVySGl0LkFic29sdXRlU2l6ZS5YLDAsMSkKdGFyZ2V0U2l6ZT0wLjQrcCooNC4wLTAuNCkKc2l6ZUJveC5UZXh0PXN0cmluZy5mb3JtYXQoIiUuMWYiLHRhcmdldFNpemUpCnVwZGF0ZVZpc3VhbHMocCkKYXBwbHlWaXN1YWxTaXplKHRhcmdldFNpemUpCmVuZAplbmQpClVJUy5JbnB1dENoYW5nZWQ6Q29ubmVjdChmdW5jdGlvbihpbnB1dCkKaWYgbm90IGlzT3BlbiB0aGVuIHJldHVybiBlbmQKaWYgZHJhZ2dpbmdTbGlkZXIgYW5kIGlucHV0PT1kcmFnSW5wdXQgdGhlbgpsb2NhbCBwPW1hdGguY2xhbXAoKGlucHV0LlBvc2l0aW9uLlgtc2xpZGVySGl0LkFic29sdXRlUG9zaXRpb24uWCkvc2xpZGVySGl0LkFic29sdXRlU2l6ZS5YLDAsMSkKdGFyZ2V0U2l6ZT0wLjQrcCooNC4wLTAuNCkKc2l6ZUJveC5UZXh0PXN0cmluZy5mb3JtYXQoIiUuMWYiLHRhcmdldFNpemUpCnVwZGF0ZVZpc3VhbHMocCkKYXBwbHlWaXN1YWxTaXplKHRhcmdldFNpemUpCmVuZAplbmQpClVJUy5JbnB1dEVuZGVkOkNvbm5lY3QoZnVuY3Rpb24oaW5wdXQpCmlmIGRyYWdnaW5nU2xpZGVyIGFuZCBpbnB1dD09ZHJhZ0lucHV0IHRoZW4KaWYgaXNPcGVuIHRoZW4Kc2F2ZVNpemUoKQphcHBseVNlcnZlclNpemUodGFyZ2V0U2l6ZSkKZW5kCmRyYWdnaW5nU2xpZGVyPWZhbHNlCmRyYWdJbnB1dD1uaWwKZW5kCmVuZCkKc2l6ZUJveC5Gb2N1c0xvc3Q6Q29ubmVjdChmdW5jdGlvbigpCmxvY2FsIG51bT10b251bWJlcihzaXplQm94LlRleHQpCmlmIG51bSB0aGVuCm51bT1tYXRoLmNsYW1wKG51bSwwLjQsNC4wKQp0YXJnZXRTaXplPW51bQpzaXplQm94LlRleHQ9c3RyaW5nLmZvcm1hdCgiJS4xZiIsbnVtKQpsb2NhbCBwPShudW0tMC40KS8oNC4wLTAuNCkKdXBkYXRlVmlzdWFscyhwKQpzYXZlU2l6ZSgpCmFwcGx5U2VydmVyU2l6ZSh0YXJnZXRTaXplKQplbHNlCnNpemVCb3guVGV4dD1zdHJpbmcuZm9ybWF0KCIlLjFmIix0YXJnZXRTaXplKQplbmQKZW5kKQ=="
-local decoded = game:GetService("HttpService"):Base64Decode(b64)
-loadstring(decoded)()
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+local LP = Players.LocalPlayer
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "SizeChanger"
+gui.ResetOnSpawn = false
+gui.DisplayOrder = 9999
+pcall(function() if gethui then gui.Parent = gethui() else gui.Parent = CoreGui end end)
+
+local targetSize = 1.0
+local isOpen = true
+local isBinding = false
+local toggleKey = Enum.KeyCode.Equals
+local draggingSlider = false
+local dragInput = nil
+
+if isfile and readfile then
+    pcall(function()
+        if isfile("EYZ_Size.txt") then
+            local s = tonumber(readfile("EYZ_Size.txt"))
+            if s then targetSize = s end
+        end
+    end)
+end
+
+local function saveSize()
+    if writefile then pcall(function() writefile("EYZ_Size.txt", tostring(targetSize)) end) end
+end
+
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.new(0, 220, 0, 110)
+main.Position = UDim2.new(0.5, -110, 0.5, -55)
+main.BackgroundColor3 = Color3.fromRGB(37, 37, 37)
+main.BorderSizePixel = 0
+main.Active = false
+main.ClipsDescendants = true
+
+local corner = Instance.new("UICorner", main)
+corner.CornerRadius = UDim.new(0, 6)
+local stroke = Instance.new("UIStroke", main)
+stroke.Color = Color3.fromRGB(60, 60, 60)
+stroke.Thickness = 1
+stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+local title = Instance.new("TextButton", main)
+title.Size = UDim2.new(1, -80, 0, 26)
+title.Position = UDim2.new(0, 12, 0, 4)
+title.BackgroundTransparency = 1
+title.Text = "Size Control"
+title.TextColor3 = Color3.fromRGB(240, 240, 240)
+title.TextSize = 13
+title.Font = Enum.Font.GothamMedium
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.AutoButtonColor = false
+title.Active = false
+
+local keybindBtn = Instance.new("TextButton", main)
+keybindBtn.Size = UDim2.new(0, 30, 0, 20)
+keybindBtn.Position = UDim2.new(1, -65, 0, 7)
+keybindBtn.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
+keybindBtn.Text = "="
+keybindBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+keybindBtn.Font = Enum.Font.GothamMedium
+keybindBtn.TextSize = 12
+keybindBtn.BorderSizePixel = 0
+keybindBtn.ZIndex = 3
+Instance.new("UICorner", keybindBtn).CornerRadius = UDim.new(0, 4)
+keybindBtn.MouseEnter:Connect(function() TweenService:Create(keybindBtn, TweenInfo.new(0.1), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play() end)
+keybindBtn.MouseLeave:Connect(function() if not isBinding then TweenService:Create(keybindBtn, TweenInfo.new(0.1), {TextColor3 = Color3.fromRGB(200, 200, 200)}):Play() end end)
+
+local triangleBtn = Instance.new("TextButton", main)
+triangleBtn.Size = UDim2.new(0, 26, 0, 26)
+triangleBtn.Position = UDim2.new(1, -30, 0, 4)
+triangleBtn.BackgroundTransparency = 1
+triangleBtn.Text = "▼"
+triangleBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+triangleBtn.Font = Enum.Font.GothamMedium
+triangleBtn.TextSize = 12
+triangleBtn.AutoButtonColor = false
+triangleBtn.ZIndex = 3
+triangleBtn.MouseEnter:Connect(function() TweenService:Create(triangleBtn, TweenInfo.new(0.1), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play() end)
+triangleBtn.MouseLeave:Connect(function() TweenService:Create(triangleBtn, TweenInfo.new(0.1), {TextColor3 = Color3.fromRGB(200, 200, 200)}):Play() end)
+
+local expandBtn = Instance.new("Frame", main)
+expandBtn.Size = UDim2.new(1, 0, 1, 0)
+expandBtn.BackgroundTransparency = 1
+expandBtn.Visible = false
+expandBtn.ZIndex = 10
+
+local dragTop = Instance.new("Frame", main)
+dragTop.Size = UDim2.new(1, 0, 0, 20)
+dragTop.Position = UDim2.new(0, 0, 0, 0)
+dragTop.BackgroundTransparency = 1
+dragTop.Active = true
+
+local dragBot = Instance.new("Frame", main)
+dragBot.Size = UDim2.new(1, 0, 0, 20)
+dragBot.Position = UDim2.new(0, 0, 1, -20)
+dragBot.BackgroundTransparency = 1
+dragBot.Active = true
+
+local dragLeft = Instance.new("Frame", main)
+dragLeft.Size = UDim2.new(0, 20, 1, 0)
+dragLeft.Position = UDim2.new(0, 0, 0, 0)
+dragLeft.BackgroundTransparency = 1
+dragLeft.Active = true
+
+local dragRight = Instance.new("Frame", main)
+dragRight.Size = UDim2.new(0, 20, 1, 0)
+dragRight.Position = UDim2.new(1, -20, 0, 0)
+dragRight.BackgroundTransparency = 1
+dragRight.Active = true
+
+local draggingWindow = false
+local isDragging = false
+local dragStart = nil
+local startPos = nil
+
+local function attachDrag(f)
+    f.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            draggingWindow = true
+            isDragging = false
+            dragStart = input.Position
+            startPos = main.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    if draggingWindow then
+                        draggingWindow = false
+                        if not isDragging and f == expandBtn then
+                            toggleUI()
+                        end
+                    end
+                end
+            end)
+        end
+    end)
+end
+
+attachDrag(dragTop)
+attachDrag(dragBot)
+attachDrag(dragLeft)
+attachDrag(dragRight)
+attachDrag(expandBtn)
+
+UIS.InputChanged:Connect(function(input)
+    if draggingWindow and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        if delta.Magnitude > 5 then isDragging = true end
+        if isDragging then
+            main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end
+end)
+
+local sizeBox = Instance.new("TextBox", main)
+sizeBox.Size = UDim2.new(0, 44, 0, 22)
+sizeBox.Position = UDim2.new(0, 12, 0, 36)
+sizeBox.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
+sizeBox.Text = string.format("%.1f", targetSize)
+sizeBox.TextColor3 = Color3.fromRGB(240, 240, 240)
+sizeBox.Font = Enum.Font.GothamMedium
+sizeBox.TextSize = 12
+sizeBox.BorderSizePixel = 0
+sizeBox.ZIndex = 3
+Instance.new("UICorner", sizeBox).CornerRadius = UDim.new(0, 4)
+
+local sliderHit = Instance.new("Frame", main)
+sliderHit.Size = UDim2.new(0, 144, 0, 24)
+sliderHit.Position = UDim2.new(0, 64, 0, 35)
+sliderHit.BackgroundTransparency = 1
+sliderHit.Active = true
+sliderHit.ZIndex = 3
+
+local sliderBg = Instance.new("Frame", sliderHit)
+sliderBg.Size = UDim2.new(1, 0, 0, 4)
+sliderBg.Position = UDim2.new(0, 0, 0.5, -2)
+sliderBg.BackgroundColor3 = Color3.fromRGB(26, 26, 26)
+sliderBg.BorderSizePixel = 0
+Instance.new("UICorner", sliderBg).CornerRadius = UDim.new(1, 0)
+
+local sliderFill = Instance.new("Frame", sliderBg)
+sliderFill.Size = UDim2.new((targetSize - 0.4) / (4.0 - 0.4), 0, 1, 0)
+sliderFill.BackgroundColor3 = Color3.fromRGB(208, 208, 208)
+sliderFill.BorderSizePixel = 0
+Instance.new("UICorner", sliderFill).CornerRadius = UDim.new(1, 0)
+
+local sliderThumb = Instance.new("Frame", sliderBg)
+sliderThumb.Size = UDim2.new(0, 12, 0, 12)
+sliderThumb.AnchorPoint = Vector2.new(0.5, 0.5)
+sliderThumb.Position = UDim2.new((targetSize - 0.4) / (4.0 - 0.4), 0, 0.5, 0)
+sliderThumb.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+sliderThumb.BorderSizePixel = 0
+Instance.new("UICorner", sliderThumb).CornerRadius = UDim.new(1, 0)
+
+local presetFrame = Instance.new("Frame", main)
+presetFrame.Size = UDim2.new(1, -24, 0, 22)
+presetFrame.Position = UDim2.new(0, 12, 0, 76)
+presetFrame.BackgroundTransparency = 1
+presetFrame.ZIndex = 3
+
+local function applyServerSize(scale)
+    local char = LP.Character
+    if not char then return end
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if not hum then return end
+    pcall(function() char:ScaleTo(scale) end)
+    if hum.RigType == Enum.HumanoidRigType.R15 then
+        local oldDesc = hum:FindFirstChildOfClass("HumanoidDescription")
+        if oldDesc then
+            local newDesc = oldDesc:Clone()
+            newDesc.BodyHeightScale = scale
+            newDesc.BodyWidthScale = scale
+            newDesc.BodyDepthScale = scale
+            newDesc.HeadScale = scale
+            pcall(function() hum:ApplyDescription(newDesc) end)
+            task.delay(1, function() if newDesc then newDesc:Destroy() end end)
+        end
+    end
+end
+
+local function applyVisualSize(scale)
+    local char = LP.Character
+    if char then pcall(function() char:ScaleTo(scale) end) end
+end
+
+local function makePreset(text, val, xPos)
+    local btn = Instance.new("TextButton", presetFrame)
+    btn.Size = UDim2.new(0.31, 0, 1, 0)
+    btn.Position = UDim2.new(xPos, 0, 0, 0)
+    btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    btn.Text = text
+    btn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    btn.Font = Enum.Font.GothamMedium
+    btn.TextSize = 11
+    btn.BorderSizePixel = 0
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
+    btn.MouseEnter:Connect(function() TweenService:Create(btn, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(55, 55, 55)}):Play() end)
+    btn.MouseLeave:Connect(function() TweenService:Create(btn, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(45, 45, 45)}):Play() end)
+    btn.MouseButton1Click:Connect(function()
+        targetSize = val
+        local p = (val - 0.4) / (4.0 - 0.4)
+        sizeBox.Text = string.format("%.1f", val)
+        sliderFill.Size = UDim2.new(p, 0, 1, 0)
+        sliderThumb.Position = UDim2.new(p, 0, 0.5, 0)
+        saveSize()
+        applyServerSize(targetSize)
+    end)
+end
+
+makePreset("Small", 0.6, 0)
+makePreset("Normal", 1.0, 0.34)
+makePreset("Giant", 2.5, 0.69)
+
+local function updateVisuals(pct)
+    sliderFill.Size = UDim2.new(pct, 0, 1, 0)
+    sliderThumb.Position = UDim2.new(pct, 0, 0.5, 0)
+end
+
+function toggleUI()
+    isOpen = not isOpen
+    draggingSlider = false
+    dragInput = nil
+    draggingWindow = false
+    
+    if isOpen then
+        title.Visible = true
+        keybindBtn.Visible = true
+        triangleBtn.Visible = true
+        sizeBox.Visible = true
+        sliderHit.Visible = true
+        presetFrame.Visible = true
+        expandBtn.Visible = false
+        dragTop.Visible = true
+        dragBot.Visible = true
+        dragLeft.Visible = true
+        dragRight.Visible = true
+        
+        TweenService:Create(main, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 220, 0, 110)}):Play()
+        TweenService:Create(corner, TweenInfo.new(0.3), {CornerRadius = UDim.new(0, 6)}):Play()
+        TweenService:Create(triangleBtn, TweenInfo.new(0.3), {Position = UDim2.new(1, -30, 0, 4)}):Play()
+        triangleBtn.Text = "▼"
+    else
+        title.Visible = false
+        keybindBtn.Visible = false
+        sizeBox.Visible = false
+        sliderHit.Visible = false
+        presetFrame.Visible = false
+        triangleBtn.Visible = false
+        expandBtn.Visible = true
+        dragTop.Visible = false
+        dragBot.Visible = false
+        dragLeft.Visible = false
+        dragRight.Visible = false
+        
+        TweenService:Create(main, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 40, 0, 40)}):Play()
+        TweenService:Create(corner, TweenInfo.new(0.3), {CornerRadius = UDim.new(1, 0)}):Play()
+    end
+end
+
+triangleBtn.MouseButton1Click:Connect(function() if isOpen then toggleUI() end end)
+
+keybindBtn.MouseButton1Click:Connect(function()
+    isBinding = true
+    keybindBtn.Text = "..."
+    keybindBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+end)
+
+UIS.InputBegan:Connect(function(input, gp)
+    if gp then return end
+    if isBinding then
+        if input.KeyCode ~= Enum.KeyCode.Unknown then
+            toggleKey = input.KeyCode
+            keybindBtn.Text = input.KeyCode.Name
+            isBinding = false
+            keybindBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+        end
+        return
+    end
+    if input.KeyCode == toggleKey then
+        toggleUI()
+    end
+end)
+
+sliderHit.InputBegan:Connect(function(input)
+    if not isOpen then return end
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        draggingSlider = true
+        dragInput = input
+        local p = math.clamp((input.Position.X - sliderHit.AbsolutePosition.X) / sliderHit.AbsoluteSize.X, 0, 1)
+        targetSize = 0.4 + p * (4.0 - 0.4)
+        sizeBox.Text = string.format("%.1f", targetSize)
+        updateVisuals(p)
+        applyVisualSize(targetSize)
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if not isOpen then return end
+    if draggingSlider and input == dragInput then
+        local p = math.clamp((input.Position.X - sliderHit.AbsolutePosition.X) / sliderHit.AbsoluteSize.X, 0, 1)
+        targetSize = 0.4 + p * (4.0 - 0.4)
+        sizeBox.Text = string.format("%.1f", targetSize)
+        updateVisuals(p)
+        applyVisualSize(targetSize)
+    end
+end)
+
+UIS.InputEnded:Connect(function(input)
+    if draggingSlider and input == dragInput then
+        if isOpen then
+            saveSize()
+            applyServerSize(targetSize)
+        end
+        draggingSlider = false
+        dragInput = nil
+    end
+end)
+
+sizeBox.FocusLost:Connect(function()
+    local num = tonumber(sizeBox.Text)
+    if num then
+        num = math.clamp(num, 0.4, 4.0)
+        targetSize = num
+        sizeBox.Text = string.format("%.1f", num)
+        local p = (num - 0.4) / (4.0 - 0.4)
+        updateVisuals(p)
+        saveSize()
+        applyServerSize(targetSize)
+    else
+        sizeBox.Text = string.format("%.1f", targetSize)
+    end
+end)
