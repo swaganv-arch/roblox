@@ -1,4 +1,4 @@
--- chinese look
+-- chinese look (hardened)
 local Players          = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local StarterGui       = game:GetService("StarterGui")
@@ -7,13 +7,11 @@ local CoreGui          = game:GetService("CoreGui")
 local LP = Players.LocalPlayer
 
 local LookEnabled = false
-local savedDesc   = nil
+local busy        = false
 
-local SKIN = Color3.fromRGB(245, 213, 178)  -- warm light East Asian tone
+local SKIN = Color3.fromRGB(245, 213, 178)
 
--- hair asset (classic black hair) — pcall'd in case it 404s
 local HAIR_ASSET = 16630147
--- a neutral/serious face
 local FACE_ASSET = 8560915
 
 local function Notify(title, text)
@@ -26,53 +24,67 @@ local function GetHumanoid()
 end
 
 local function ApplyLook()
+    if busy then return end
     local hum = GetHumanoid()
     if not hum then return end
-
-    local desc = hum:FindFirstChildOfClass("HumanoidDescription")
-    if not desc then
-        desc = Instance.new("HumanoidDescription")
-        desc.Parent = hum
+    if hum.RigType ~= Enum.HumanoidRigType.R15 then
+        Notify("Look", "R15 only — skipped")
+        return
     end
 
-    -- skin tone across all body parts
-    desc.HeadColor    = SKIN
-    desc.TorsoColor   = SKIN
-    desc.LeftArmColor = SKIN
+    busy = true
+
+    local desc = Instance.new("HumanoidDescription")
+    desc.HeadColor     = SKIN
+    desc.TorsoColor    = SKIN
+    desc.LeftArmColor  = SKIN
     desc.RightArmColor = SKIN
-    desc.LeftLegColor = SKIN
+    desc.LeftLegColor  = SKIN
     desc.RightLegColor = SKIN
 
-    -- slightly rounder head, modest proportions
     desc.HeadScale       = 1.05
     desc.BodyHeightScale = 0.95
     desc.BodyWidthScale  = 0.9
     desc.BodyDepthScale  = 0.9
 
-    -- asset ids — wrapped so failure doesn't kill the whole apply
     pcall(function() desc.Hair = HAIR_ASSET end)
     pcall(function() desc.Face = FACE_ASSET end)
 
-    hum:ApplyDescription(desc)
+    task.wait() -- let description settle before apply[reference:3]
+
+    local ok, err = pcall(function()
+        hum:ApplyDescription(desc)
+    end)
+
+    desc:Destroy()
+
+    busy = false
+
+    if ok then
+        Notify("Look", "Applied")
+    else
+        Notify("Look", "Failed — asset rejected")
+        warn("ApplyDescription error: " .. tostring(err))
+    end
+end
+
+local function ResetLook()
+    if busy then return end
+    local hum = GetHumanoid()
+    if not hum then return end
+    busy = true
+    pcall(function()
+        local fresh = Instance.new("HumanoidDescription")
+        hum:ApplyDescription(fresh)
+        fresh:Destroy()
+    end)
+    busy = false
+    Notify("Look", "Reset")
 end
 
 local function SetLook(enabled)
     LookEnabled = enabled
-    if enabled then
-        ApplyLook()
-        Notify("Look", "Applied")
-    else
-        -- reset to default by clearing the description
-        local hum = GetHumanoid()
-        if hum then
-            pcall(function()
-                local fresh = Instance.new("HumanoidDescription")
-                fresh.Parent = hum
-                hum:ApplyDescription(fresh)
-            end)
-        end
-        Notify("Look", "Reset")
-    end
+    if enabled then ApplyLook() else ResetLook() end
 end
 
 LP.CharacterAdded:Connect(function()
